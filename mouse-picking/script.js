@@ -7,12 +7,14 @@ var block = true;
 var clearColor = new THREE.Color(0xaaaabb);
 var cubeColor = new THREE.Color(0xff7755);
 var hitColor = new THREE.Color(0x000000);
-var lineColor = new THREE.Color(0xaaffaa/*0xff5016*/);
+var lineColor = new THREE.Color(0xaaffaa);
 var edgeColor = new THREE.Color(0x000000);
 var canvas = document.getElementById("cnv");
 var scene, camera, renderer, controls, light;
+
 //Block arrangement params
 var rows = 4; var dim = 3; var gap = 3;
+
 //Random arrangement params
 var n = 100; var maxDim = 4; var scope = 50;
 
