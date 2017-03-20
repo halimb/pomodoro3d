@@ -1,9 +1,20 @@
-var canvas = document.getElementById("cnv");
-var scene, camera, renderer, controls, light, theta, visible;
-var camPos = new THREE.Vector3(0, 0, 40);
-var camUp = new THREE.Vector3(0, 0, 1);
 var cubes = [];
+var edges = [];
 var lines = [];
+var opacity = 0;
+var autoRot = true;
+var block = true;
+var clearColor = new THREE.Color(0xaaaabb);
+var cubeColor = new THREE.Color(0xff7755);
+var hitColor = new THREE.Color(0x000000);
+var lineColor = new THREE.Color(0xaaffaa/*0xff5016*/);
+var edgeColor = new THREE.Color(0x000000);
+var canvas = document.getElementById("cnv");
+var scene, camera, renderer, controls, light;
+//Block arrangement params
+var rows = 4; var dim = 3; var gap = 3;
+//Random arrangement params
+var n = 100; var maxDim = 4; var scope = 50;
 
 init();
 anim();
@@ -37,11 +48,13 @@ function init() {
   //Renderer
   renderer = new THREE.WebGLRenderer( { canvas: canvas,
                                        antialias: true } );
-  renderer.setClearColor(0xaaaaaa, 1);
+  renderer.setClearColor(clearColor, 1);
 
   //Camera
   camera = new THREE.PerspectiveCamera(45, 1.0, 0.1, 10000);
-  camera.position.set(camPos.x, camPos.y, camPos.z);
+  camera.position.set(30, 30, 30);
+  //camera.rotation.x = (Math.PI / 2);
+  camera.updateProjectionMatrix();
   console.log(camera);
   scene.add(camera);
 
@@ -53,10 +66,9 @@ function init() {
   controls.rotateSpeed = 0.15;
   controls.autoRotate = true;
   controls.autoRotateSpeed = 0.5;
-  theta = controls.getPolarAngle();
+  
   //Populating the scene
-  drawCubes(5, 3, 2);
-
+  drawCubes(rows, dim, gap);
   var axis = new THREE.AxisHelper(20);
   scene.add(axis);
 }
@@ -64,10 +76,6 @@ function init() {
 function render() {
    renderer.setSize(window.innerWidth, window.innerHeight);
    update();
-   //moving the light with the camera
-   /*light.position.x = camera.position.x;
-   light.position.y = camera.position.y;
-   light.position.z = camera.position.z;*/
    renderer.render(scene, camera);
 }
 
@@ -78,54 +86,93 @@ function drawCubes(n, dim, gap) {
   for(var i = 0; i < n; i++) {
     for(var j = 0; j < n; j++) {
       for(var k = 0; k < n; k++) {
-        var mat = new THREE.MeshPhongMaterial({color: 0xff7755,
+        var mat = new THREE.MeshPhongMaterial({color: cubeColor,
                                                transparent: true,
                                                shininess: 70});
         var geo = new THREE.BoxGeometry(dim, dim, dim);
+        var edgesGeo = new THREE.EdgesGeometry(geo);
+        var edge = new THREE.LineSegments(
+                            edgesGeo, 
+                            new THREE.LineBasicMaterial(
+                                    { color: edgeColor,
+                                      transparent: true,
+                                      linewidth: 2})
+                                         );
         var obj = new THREE.Mesh(geo, mat);
         obj.position.x = i * step - offset + dim / 2;
         obj.position.y = j * step - offset + dim / 2;
         obj.position.z = k * step - offset + dim / 2;
+        edge.position.x = obj.position.x;
+        edge.position.y = obj.position.y;
+        edge.position.z = obj.position.z;
         cubes.push(obj);
+        edges.push(edge);
+        scene.add(edge);
         scene.add(obj);
       }
     }
   }
- /* for(var i = 0; i < n; i++) {
+}
+
+function drawRandom(n, dim, scope) {
+  for(var i = 0; i < n; i++) {
     var width = Math.random() * dim;
     var height = Math.random() * dim;
     var depth = Math.random() * dim;
     var rx = Math.random() * Math.PI;
     var ry = Math.random() * Math.PI;
     var rz = Math.random() * Math.PI;
-    var mat = new THREE.MeshLambertMaterial(0xffffff);
-    var geo = new THREE.BoxGeometry(width, height, depth);
+    var mat = new THREE.MeshPhongMaterial({color: cubeColor,
+                                               transparent: true,
+                                               shininess: 70});
+    var geo = new THREE.BoxGeometry(width, height, depth); 
+    var edgesGeo = new THREE.EdgesGeometry(geo);
+    var edge = new THREE.LineSegments(
+                            edgesGeo, 
+                            new THREE.LineBasicMaterial(
+                                    { color: edgeColor,
+                                      transparent: true,
+                                      linewidth: 2})
+                                         );
     var obj = new THREE.Mesh(geo, mat);
     obj.position.x = Math.random() * scope - scope/2;
     obj.position.y = Math.random() * scope - scope/2;
     obj.position.z = Math.random() * scope - scope/2;
+    edge.position.x = obj.position.x;
+    edge.position.y = obj.position.y;
+    edge.position.z = obj.position.z;
     obj.rotation.x = rx;
     obj.rotation.y = ry;
     obj.rotation.z = rz;
+    edge.rotation.x = rx;
+    edge.rotation.y = ry;
+    edge.rotation.z = rz;
+    cubes.push(obj);
+    edges.push(edge);
     scene.add(obj);
-  }*/
+    scene.add(edge);
+  }
 }
 
 function toggleLines(cb) {
-  visible = cb.checked;
+  opacity = cb.checked ? 1 : 0;
   for(var i = 0; i < lines.length; i++) {
-    if( i == 0) {
-      console.log(lines[0]);
-    }
-    lines[i].material.visible = visible;
+    lines[i].material.opacity = opacity;
   }
+}
+
+function toggleRot(cb) {
+  controls.autoRotate = cb.checked;
+  autoRot = cb.checked;
 }
 
 function drawLine(a, b) {
   var geo = new THREE.Geometry();
   geo.vertices.push(a);
   geo.vertices.push(b);
-  var mat = new THREE.LineBasicMaterial({color: 0xff5016, visible: visible});
+  var mat = new THREE.LineBasicMaterial({color: lineColor, transparent: true,
+                                        opacity: opacity,
+                                        alphaTest: 0.5});
   var line = new THREE.Line(geo, mat);
   lines.push(line);
   scene.add(line);
@@ -144,16 +191,37 @@ function getIntersects(event) {
 }
 
 function reset() {
-  for(var i = 0; i < cubes.length; i++) {
-    cubes[i].material.opacity = 1;
-    cubes[i].material.color = new THREE.Color(0xffffff);
+  var radio = document.getElementById("block").checked; 
+  if(radio == block) { 
+    for(var i = 0; i < cubes.length; i++) {
+      cubes[i].material.opacity = 1;
+      cubes[i].material.color = cubeColor;
+      edges[i].material.opacity = 1;
+      edges[i].material.color = edgeColor;
+    }
+  }
+  else {
+    for(var i = 0; i < cubes.length; i++) {
+      scene.remove()
+      scene.remove(cubes[i]);
+      scene.remove(edges[i]);
+    }
+    cubes = [];
+    edges = []; 
+    if(radio) {
+      drawCubes(rows, dim, gap);
+      block = true;
+    }
+    else {
+      drawRandom(n, maxDim, scope);
+      block = false;
+    }
   }
   for(var i = 0; i < lines.length; i++) {
     scene.remove(lines[i]);
   }
   lines = [];
-  theta = controls.getPolarAngle();
-  controls.autoRotate = true;
+  controls.autoRotate = autoRot;
 }
 
 function update() {
@@ -162,22 +230,33 @@ function update() {
 }
 
 function onClick(event) {
-  console.log(controls.getPolarAngle())
   var intersects = getIntersects(event);
   if(intersects.length > 0) {
     controls.enabled = false;
     var i;
     for(i = 0; i < intersects.length; i++) {
-      intersects[i].object.material.color = new THREE.Color(0x00ff00);
-      intersects[i].object.material.opacity = 0.1;
+      var cube = intersects[i].object;
+      cube.material.color = hitColor;
+      cube.material.opacity = 0.1;
+      var index = getCubeIndex(cube);
+      edges[index].material.opacity = 0.1;
     }
     var pos = camera.position;
     var start = new THREE.Vector3(pos.x, pos.y, pos.z);
     var end = intersects[i-1].point;
     drawLine(start, end);
-    camera.position.x += 0.0001;
-    //scene.remove(intersects[0].object);
   }
+}
+
+function getCubeIndex(cube) {
+  var res = -1;
+  for(var i = 0; i < cubes.length; i++) {
+    if(cubes[i] == cube) {
+      res = i;
+      break;
+    }
+  }
+  return i;
 }
 
 function mouseUp() {
@@ -187,8 +266,5 @@ function mouseUp() {
 function anim() {
    requestAnimationFrame(anim);
    controls.update();
-   if(controls.getPolarAngle() != theta) {
-     //controls.autoRotate = false;
-   }
    render();
 }
