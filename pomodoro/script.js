@@ -103,12 +103,16 @@ function drawProto() {
 							});
 }
 
+function drawPlane() {
+		loader.parse(jsonPlane, function(plane) {
+									scene.add(plane);
+								});
+}
+
 function drawPom() {
 	if(clear) {
 		pomTop = new THREE.Object3D();
 		bottom = new THREE.Object3D();
-
-		//drawPlane();
 
 		//change ".parse" to ".load" for online use
 		loader.parse(jsonPom, function(pom){
@@ -128,7 +132,7 @@ function drawPom() {
 								 scene.add(pomTop);	
 								 scene.add(bottom);
 							});
-
+		drawPlane();
 		drawProto();
 		clear = false;
 	}
@@ -138,7 +142,7 @@ init();
 anim();
 
 
-// >  >  >  >  >  >  >  >  >  > Click handler
+// >>>>>>>> Click handler
 function onMouseDown(event) {
 	var intersects = getIntersects(event);
 	if(intersects.length > 0) {
