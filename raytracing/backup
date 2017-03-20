@@ -1,0 +1,164 @@
+
+<!DOCTYPE html>
+<html >
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="shortcut icon" type="image/x-icon" href="https://production-assets.codepen.io/assets/favicon/favicon-8ea04875e70c4b0bb41da869e81236e54394d63638a1ef12fa558a4a835f1164.ico" />
+  <link rel="mask-icon" type="" href="https://production-assets.codepen.io/assets/favicon/logo-pin-f2d2b6d2c61838f7e76325261b7195c27224080bc099486ddd6dccb469b8e8e6.svg" color="#111" />
+  <title>CodePen - A Pen by  Halim</title>
+  
+  
+  
+  
+      <style>
+      * {
+  background-color: #ffffff;
+  overflow: hidden;
+}
+
+canvas {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  margin: -8px;
+}
+    </style>
+
+  
+  
+  
+  
+</head>
+
+<body translate="no" >
+
+  <canvas id="cnv"></canvas>
+  
+  <script src='https://threejs.org/build/three.min.js'></script>
+<script src='https://cdn.rawgit.com/mrdoob/three.js/dev/examples/js/controls/OrbitControls.js'></script>
+
+    <script>
+    var canvas = document.getElementById("cnv");
+var scene, camera, renderer, controls, light;
+init();
+anim();
+
+window.addEventListener("resize", onResize);
+canvas.addEventListener("mousedown", onClick);
+document.addEventListener("mouseup", mouseUp);
+
+function init() {
+  //Scene
+  scene =  new THREE.Scene();
+  scene.fog = new THREE.FogExp2(0x000000, 0.0075);
+  
+  //Lights
+  light = new THREE.PointLight(0xffffff);
+  light.position.set(10, 10, 10);
+  scene.add(light);
+  
+  var ambient = new THREE.AmbientLight(0xffffff);
+  ambient.intensity = 0.2;
+  scene.add(ambient)
+  
+  //Renderer
+  renderer = new THREE.WebGLRenderer( { canvas: canvas,
+                                       antialias: true } );
+  renderer.setClearColor(0x303030, 1);
+  
+  //Camera
+  camera = new THREE.PerspectiveCamera(45, 1.0, 0.1, 10000);
+  camera.position.set(0, 0, 30);
+  scene.add(camera);
+  
+  //setting the orbit controls
+  controls = new THREE.OrbitControls(camera, renderer.domElement);
+  controls.enabled = true;
+  controls.enableDamping = true;
+  controls.dampingFactor = 0.1;
+  controls.rotateSpeed = 0.15;
+  
+  //Populating the scene
+  drawCubes(500, 3, 80);
+}
+
+function render() {
+   renderer.setSize(window.innerWidth, window.innerHeight);
+   //moving the light with the camera
+   light.position.x = camera.position.x;
+   light.position.y = camera.position.y;
+   light.position.z = camera.position.z;
+   renderer.render(scene, camera);
+}
+
+function drawCubes(n, dim, scope) {
+  for(var i = 0; i < n; i++) {
+    var width = Math.random() * dim;
+    var height = Math.random() * dim;
+    var depth = Math.random() * dim;
+    var rx = Math.random() * Math.PI;
+    var ry = Math.random() * Math.PI;
+    var rz = Math.random() * Math.PI;
+    var mat = new THREE.MeshLambertMaterial(0xffffff);
+    var geo = new THREE.BoxGeometry(width, height, depth);
+    var obj = new THREE.Mesh(geo, mat);
+    obj.position.x = Math.random() * scope - scope/2;
+    obj.position.y = Math.random() * scope - scope/2;
+    obj.position.z = Math.random() * scope - scope/2;
+    obj.rotation.x = rx;
+    obj.rotation.y = ry;
+    obj.rotation.z = rz; 
+    scene.add(obj);
+  }
+}
+
+function getIntersects(event) {
+  var raycaster = new THREE.Raycaster();
+  var click = new THREE.Vector2();
+  var offset = canvas.offsetLeft;
+  var top = canvas.offsetTop;
+  console.log("offset left: " + offset + ", offset top: " + top);
+  click.x = 2 * (event.clientX - offset) / (canvas.width)- 1;
+  click.y =  - (2 * (event.clientY - offset) / canvas.height - 1);
+  console.log("NDCx: " + click.x + ", NDCy: " + click.y);
+  raycaster.setFromCamera(click, camera);
+  var intersects = raycaster.intersectObjects(scene.children);
+  return intersects;
+}
+
+function onResize() {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+}
+
+function onClick(event) {
+  console.log("clientX: " + event.clientX 
+               + ", clientY: " + event.clientY)
+  var intersects = getIntersects(event);
+  if(intersects.length > 0) {
+    controls.enabled = false;
+    for(var i = 0; i < intersects.length; i++) {
+      intersects[i].object.material.color = new THREE.Color(0x00ff00);
+    }
+    //scene.remove(intersects[0].object);
+  }
+}
+
+function mouseUp() {
+  controls.enabled = true;
+}
+
+function anim() {
+   requestAnimationFrame(anim);
+   controls.update();
+   render();
+}
+  </script>
+
+  
+  
+
+</body>
+</html>
+ 
