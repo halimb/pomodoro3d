@@ -80,18 +80,6 @@ function render() {
 	renderer.render(scene, camera);
 }
 
-/*
-function drawTop() {
-	loader.load(jsonTop, function(o) {
-										pomTop = o;
-										total = 0;
-										pomTop.translateY(0.25)
-										pomTop.rotateY(0.065);
-										pomTop.children[2].material.shininess = 5;
-										scene.add(pomTop);
-									});
-}
-*/
 function drawProto() {
 	loader.parse(jsonProto, function(o) {
 								protoPom = o.children[0];
@@ -164,14 +152,6 @@ function onMouseUp(event) {
 		rotating = false;
 		controls.enabled = true;
 		document.body.style.cursor = "default";
-		var diff = pomTop.rotation.y % (Math.PI / 30);
-		pomTop.rotation.y += diff;
-		// total -= diff;
-		// previous = (getIntersects(event))[0].point;
-		console.log("pomTop.rotation.y : " + pomTop.rotation.y);
-		console.log("total : " + total);
-		//total -= total % (Math.PI / 30);
-		//pomTop.rotation.y = total;
 	}
 }
 
