@@ -276,7 +276,14 @@ document.addEventListener("mousemove", onMouseMove);
 function anim() {
 	requestAnimationFrame(anim);
 	render();
-	showTime();
+	var remaining = getRemaining();
+	if(remaining >= 0) {
+		timeDisplay.innerHTML = time + "s";
+		pomTop.rotation.y = -time * Math.PI / 30;
+	}
+	else{
+		timer.stop();
+	}
 	//controls.update();
 }
 
@@ -291,19 +298,14 @@ function pauseTimer() {
 }
 
 //TIMER 
-function showTime() {
+function getRemaining() {
+	var time = 0;
 	if(timer.running) {
 		var elapsed = timer.getElapsedTime() + prev;
 		var remaining = startAt - elapsed;
-		var time = Math.round(remaining * 100) / 100;
-		if(time >= 0) {
-			timeDisplay.innerHTML = time + "s";
-			pomTop.rotation.y = -time * Math.PI / 30;
-		}
-		else{
-			timer.stop();
-		}
+		time = Math.round(remaining * 100) / 100;
 	}
+	return time;
 }
 
 
