@@ -276,14 +276,16 @@ document.addEventListener("mousemove", onMouseMove);
 function anim() {
 	requestAnimationFrame(anim);
 	render();
+
 	var remaining = getRemaining();
 	if(remaining >= 0) {
-		timeDisplay.innerHTML = time + "s";
-		pomTop.rotation.y = -time * Math.PI / 30;
+		timeDisplay.innerHTML = remaining + "s";
+		pomTop.rotation.y = -remaining * Math.PI / 30;
 	}
 	else{
 		timer.stop();
 	}
+	
 	//controls.update();
 }
 
@@ -299,7 +301,7 @@ function pauseTimer() {
 
 //TIMER 
 function getRemaining() {
-	var time = 0;
+	var time = -1;
 	if(timer.running) {
 		var elapsed = timer.getElapsedTime() + prev;
 		var remaining = startAt - elapsed;
