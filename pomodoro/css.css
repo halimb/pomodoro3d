@@ -14,3 +14,8 @@ canvas {
 	font-size: 200%;
 	font-family: Arial, Helvetica, sans-serif;
 }
+
+.btn {
+	position: absolute;
+	top: 10vh; left: 20vw;
+}

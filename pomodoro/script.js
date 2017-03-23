@@ -9,15 +9,25 @@
 // var jsonProto = "https://cdn.rawgit.com/unhalium/helix_mesh/6273f8c8/protoPom.json";
 // var jsonPlane = "https://cdn.rawgit.com/unhalium/helix_mesh/f0e4e09d/dark.json";
 
+//Canvas
 var dimW = 1000;
 var dimH = 600
 var c = document.getElementById("cnv");
 c.height = dimH; c.width = dimW;
-var pomTop, bottom, protoPom, clear, rotating, previous;
-var total = 0;
-var rotationSpeed = 0.025;
-var scene, renderer, camera, controls, loader;
-var display = document.getElementById("display");
+
+//Scene 
+var scene, renderer, camera, controls, clear, loader;
+
+//Pomodoro
+var pomTop, bottom, protoPom, rotating, previous;
+var rotationSpeed = 0.025, theta = 0;
+
+//Timer
+var startAt, timer, prev = 0;
+
+//Text display
+var rotDisplay = document.getElementById("rotation");
+var timeDisplay = document.getElementById("time");
 
 function init() {
 	// Creating and setting the scene
@@ -73,6 +83,9 @@ function init() {
 	// initalize the loader
 	clear = true;
 	loader = new THREE.ObjectLoader();
+
+	//timer
+	timer = new THREE.Clock(false);
 	drawPom();
 }
 
@@ -132,6 +145,7 @@ anim();
 
 // >>>>>>>> Click handler
 function onMouseDown(event) {
+	//pomTop.rotation.y -= 0.1;
 	var intersects = getIntersects(event);
 	if(intersects.length > 0) {
 		for(var i = 0; i < intersects.length; i++) {
@@ -147,16 +161,10 @@ function onMouseDown(event) {
 	}
 }
 
-function onMouseUp(event) {
-	if(rotating) {
-		rotating = false;
-		controls.enabled = true;
-		document.body.style.cursor = "default";
-	}
-}
-
 function onMouseMove(event) {
   var intersects = getIntersects(event);
+
+  	//change pomodoro rotation with mouse drag
 	if(rotating && !clear) {
 		var actual;
 		var intersects = getIntersects(event);
@@ -167,13 +175,11 @@ function onMouseMove(event) {
 			else if(intersects.length > 1){
 				actual = intersects[1].point;
 			}
-			var delta = getAngleDelta(actual);
-			pomTop.rotateY(delta);
-			var deg = Math.round(total * 180 / Math.PI);
-			var min = Math.round(deg / 6);
-			display.innerHTML = deg + "° : " + min + "mn";
+			updateRotation(actual);
 		}
 	}
+
+	//set cursor style
 	else {
 		if(isPom(intersects)) {
 			document.body.style.cursor = "pointer";
@@ -184,26 +190,17 @@ function onMouseMove(event) {
 	}
 }
 
-function isPom(intersects) {
-	var res;
-	if(intersects.length > 1) {
-		if(intersects[0].object.name == "proto" 
-			|| intersects[1].object.name == "proto"){
-				res = true;
-			}
+function onMouseUp(event) {
+	if(rotating) {
+		rotating = false;
+		controls.enabled = true;
+		document.body.style.cursor = "default";
+		timer.start();
+		console.log(pomTop.rotation.y);
 	}
-	else if(intersects.length == 1) {
-		if(intersects[0].object.name == "proto") {
-			res = true;
-		}
-	}
-	else {
-		res = false;
-	}
-	return res;
 }
 
-function getAngleDelta(actual) {
+function updateRotation(actual) {
 		actual.y = 0;
 		var axis = new THREE.Vector3(0, 0, 1);
 		var angle = axis.angleTo(actual) - axis.angleTo(previous);
@@ -215,18 +212,21 @@ function getAngleDelta(actual) {
 		while(Math.abs(angle) > rotationSpeed) {
 			angle -= angle / 10;
 		}
-		total -= angle;
-		if(total < 0) {
-			total += angle;
+		theta -= angle;
+		if(theta < 0) {
+			theta += angle;
 			angle = 0;
 		}
-		else if(total > Math.PI * 11/6) {
-			total += angle;
+		else if(theta > Math.PI * 11/6) {
+			theta += angle;
 			angle = 0;
 		}
-		return angle;
+		pomTop.rotation.y = -theta;
+		var deg = Math.round(theta * 180 / Math.PI);
+		var min = Math.round(deg / 6);
+		rotDisplay.innerHTML = deg + "° : " + min + "mn";
+		startAt = min;
 }
-
 
 function getIntersects(event) {
 	var intersects;
@@ -248,15 +248,62 @@ function getIntersects(event) {
 	return intersects;
 }
 
+function isPom(intersects) {
+	var res;
+	if(intersects.length > 1) {
+		if(intersects[0].object.name == "proto" 
+			|| intersects[1].object.name == "proto"){
+				res = true;
+			}
+	}
+	else if(intersects.length == 1) {
+		if(intersects[0].object.name == "proto") {
+			res = true;
+		}
+	}
+	else {
+		res = false;
+	}
+	return res;
+}
+
 c.addEventListener("mousedown", onMouseDown);
 document.addEventListener("mouseup", onMouseUp);
 document.addEventListener("mousemove", onMouseMove);
 
 
+
 function anim() {
 	requestAnimationFrame(anim);
 	render();
+	showTime();
 	//controls.update();
+}
+
+var start = document.getElementById("start-btn");
+var pause = document.getElementById("pause-btn");
+start.onclick = function(){timer.start();};
+pause.onclick = pauseTimer;
+
+function pauseTimer() {
+	prev += timer.getElapsedTime();
+	timer.stop();
+}
+
+//TIMER 
+function showTime() {
+	if(timer.running) {
+		var elapsed = timer.getElapsedTime() + prev;
+		var remaining = startAt - elapsed;
+		var time = Math.round(remaining * 100) / 100;
+		if(time >= 0) {
+			timeDisplay.innerHTML = time + "s";
+			pomTop.rotation.y = -time * Math.PI / 30;
+		}
+		else{
+			timer.stop();
+		}
+	}
 }
 
 
