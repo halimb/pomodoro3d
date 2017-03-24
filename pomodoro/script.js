@@ -248,22 +248,12 @@ function getIntersects(event) {
 }
 
 function isPom(intersects) {
-	var res;
-	if(intersects.length > 1) {
-		if(intersects[0].object.name == "proto" 
-			|| intersects[1].object.name == "proto"){
-				res = true;
-			}
-	}
-	else if(intersects.length == 1) {
-		if(intersects[0].object.name == "proto") {
-			res = true;
+	for(var i = 0; i < intersects.length; i++) {
+		if(intersects[i].object == protoPom){
+			return true;
 		}
 	}
-	else {
-		res = false;
-	}
-	return res;
+	return false;
 }
 
 c.addEventListener("mousedown", onMouseDown);
