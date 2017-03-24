@@ -195,7 +195,6 @@ function onMouseUp(event) {
 		rotating = false;
 		controls.enabled = true;
 		document.body.style.cursor = "default";
-		timer.start();
 		console.log(pomTop.rotation.y);
 	}
 }
@@ -225,7 +224,7 @@ function updateRotation(actual) {
 		var deg = Math.round(theta * 180 / Math.PI);
 		var min = Math.round(deg / 6);
 		rotDisplay.innerHTML = deg + "° : " + min + "mn";
-		startAt = min;
+		setTimer(min);
 }
 
 function getIntersects(event) {
@@ -280,7 +279,7 @@ function anim() {
 	var remaining = getRemaining();
 	if(remaining >= 0) {
 		timeDisplay.innerHTML = remaining + "s";
-		pomTop.rotation.y = -remaining * Math.PI / 30;
+		pomTop.rotation.y = -remaining * Math.PI / 1800;
 	}
 	else{
 		timer.stop();
@@ -291,15 +290,24 @@ function anim() {
 
 var start = document.getElementById("start-btn");
 var pause = document.getElementById("pause-btn");
-start.onclick = function(){timer.start();};
+start.onclick = function(){if(!timer.running)timer.start();};
 pause.onclick = pauseTimer;
+
+//TIMER 
+function resetTimer() {
+
+}
+
+function setTimer(minutes) {
+	startAt = minutes * 60;
+	prev = 0;
+}
 
 function pauseTimer() {
 	prev += timer.getElapsedTime();
 	timer.stop();
 }
 
-//TIMER 
 function getRemaining() {
 	var time = -1;
 	if(timer.running) {
