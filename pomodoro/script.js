@@ -8,6 +8,9 @@
 // var jsonBottom = "https://cdn.rawgit.com/unhalium/helix_mesh/8b27355a/pom_bottom.json";
 // var jsonProto = "https://cdn.rawgit.com/unhalium/helix_mesh/6273f8c8/protoPom.json";
 // var jsonPlane = "https://cdn.rawgit.com/unhalium/helix_mesh/f0e4e09d/dark.json";
+// var dingUrl = "https://cdn.rawgit.com/halimb/threejs-projects/938241fc/pomodoro/sound/ding.mp3"
+dingUrl = "sound/ding.mp3";
+
 
 //Canvas
 var dimW = 1000;
@@ -23,7 +26,8 @@ var pomTop, bottom, protoPom, rotating, previous;
 var rotationSpeed = 0.025, theta = 0;
 
 //Timer
-var startAt, timer, prev = 0;
+var startAt, timer, prev = 0; 
+var ding = new Audio(dingUrl);
 
 //Text display
 var rotDisplay = document.getElementById("rotation");
@@ -271,14 +275,16 @@ function anim() {
 	render();
 
 	var remaining = getRemaining();
-	if(remaining >= 0) {
-		timeDisplay.innerHTML = remaining + "s";
-		pomTop.rotation.y = -remaining * Math.PI / 1800;
+	if(timer.running) {
+		if(remaining >= 0) {
+			timeDisplay.innerHTML = remaining + "s";
+			pomTop.rotation.y = -remaining * Math.PI / 1800;
+		}
+		else{
+			timer.stop();
+			ding.play();
+		}
 	}
-	else{
-		timer.stop();
-	}
-	
 	//controls.update();
 }
 
