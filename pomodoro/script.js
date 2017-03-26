@@ -196,6 +196,9 @@ function onMouseUp(event) {
 		controls.enabled = true;
 		document.body.style.cursor = "default";
 		console.log(pomTop.rotation.y);
+		if( ! timer.running) {
+			timer.start();
+		}
 	}
 }
 
@@ -221,9 +224,10 @@ function updateRotation(actual) {
 			angle = 0;
 		}
 		pomTop.rotation.y = -theta;
-		var deg = Math.round(theta * 180 / Math.PI);
-		var min = Math.round(deg / 6);
-		rotDisplay.innerHTML = deg + "° : " + min + "mn";
+		var deg = theta * 180 / Math.PI;
+		var min = Math.round(100 * deg / 6) / 100;
+		rotDisplay.innerHTML = Math.round(deg) + "° : " + min + "mn";
+		timeDisplay.innerHTML = (min * 60) + "s"
 		setTimer(min);
 }
 
@@ -280,7 +284,7 @@ function anim() {
 
 var start = document.getElementById("start-btn");
 var pause = document.getElementById("pause-btn");
-start.onclick = function(){if(!timer.running)timer.start();};
+start.onclick = function(){if(!timer.running){timer.start();}};
 pause.onclick = pauseTimer;
 
 //TIMER 
