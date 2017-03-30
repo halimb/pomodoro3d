@@ -2,14 +2,13 @@
  THEN MODIFY the drawPom function to use:
  loader.load(json, function(obj))
  instead of obj = loader.parse(json)*/
-// var jsonPom = "https://cdn.rawgit.com/unhalium/helix_mesh/d37a5bc1/pomodoro.json";
-// var jsonTop = "https://cdn.rawgit.com/unhalium/helix_mesh/f70e33c0/pomodoro_top.json"
-// //var jsonTop = "https://cdn.rawgit.com/unhalium/helix_mesh/c44920e6/pom_top.json";
-// var jsonBottom = "https://cdn.rawgit.com/unhalium/helix_mesh/8b27355a/pom_bottom.json";
-// var jsonProto = "https://cdn.rawgit.com/unhalium/helix_mesh/6273f8c8/protoPom.json";
-// var jsonPlane = "https://cdn.rawgit.com/unhalium/helix_mesh/f0e4e09d/dark.json";
-// var dingUrl = "https://cdn.rawgit.com/halimb/threejs-projects/938241fc/pomodoro/sound/ding.mp3"
+//var jsonPom = "https://cdn.rawgit.com/halimb/threejs-projects/e441512c/pomodoro/models/pomodoro.json";
+//var jsonProto = "https://cdn.rawgit.com/halimb/threejs-projects/e441512c/pomodoro/models/protopom.json";
+//var jsonPlane = "https://cdn.rawgit.com/halimb/threejs-projects/e441512c/pomodoro/models/p_plane.json";
+//var dingUrl = "https://cdn.rawgit.com/halimb/threejs-projects/938241fc/pomodoro/sound/ding.mp3";
+//var clickUrl = "https://cdn.rawgit.com/halimb/threejs-projects/3f61b33e/pomodoro/sound/click.mp3";
 dingUrl = "sound/ding.mp3";
+clickUrl = "sound/click.mp3"
 
 
 //Canvas
@@ -26,12 +25,17 @@ var pomTop, bottom, protoPom, rotating, previous, deg;
 var rotationSpeed = 0.025, theta = 0;
 
 //Timer
-var startAt, timer, min, prev = 0; 
+var startAt, timer, min, prevMin = 0, prev = 0; 
 var ding = new Audio(dingUrl);
+var click = new Audio(clickUrl);
+click.volume = 0.2;
 
 //Text display
 var rotDisplay = document.getElementById("rotation");
 var timeDisplay = document.getElementById("time");
+
+init();
+anim();
 
 function init() {
 	// Creating and setting the scene
@@ -143,13 +147,10 @@ function drawPom() {
 	}
 }
 
-init();
-anim();
 
-
-// >>>>>>>> Click handler
+// >>>>>>>> Click handlers
 function onMouseDown(event) {
-	//pomTop.rotation.y -= 0.1;
+	timer.stop();
 	var intersects = getIntersects(event);
 	if(intersects.length > 0) {
 		for(var i = 0; i < intersects.length; i++) {
@@ -229,9 +230,10 @@ function updateRotation(actual) {
 		theta -= angle;
 
 		//prevent from rotating to the left of 0mn
-		if(theta < 0) {
+		if(theta <= 0) {
 			theta += angle;
 			angle = 0;
+			ding.play();
 		}
 
 		//prevent from rotating past 55mn
@@ -246,6 +248,12 @@ function updateRotation(actual) {
 		//update degrees and minutes
 		deg = theta * 180 / Math.PI;
 		min = Math.round(100 * deg / 6) / 100;
+
+		var diff = Math.abs(min - prevMin);
+		if(diff >= 1) {
+			prevMin = min;
+			click.play();
+		} 
 
 		//update info display
 		rotDisplay.innerHTML = Math.round(deg) + "° : " + min + "mn";
@@ -304,8 +312,8 @@ start.onclick = function(){if(!timer.running){timer.start();}};
 pause.onclick = pauseTimer;
 
 function countdown() {
-	var remaining = getRemaining();
 	if(timer.running) {
+	var remaining = getRemaining();
 		if(remaining >= 0) {
 			timeDisplay.innerHTML = remaining + "s";
 			pomTop.rotation.y = -remaining * Math.PI / 1800;
