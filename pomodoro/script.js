@@ -22,11 +22,11 @@ c.height = dimH; c.width = dimW;
 var scene, renderer, camera, controls, clear, loader;
 
 //Pomodoro
-var pomTop, bottom, protoPom, rotating, previous;
+var pomTop, bottom, protoPom, rotating, previous, deg;
 var rotationSpeed = 0.025, theta = 0;
 
 //Timer
-var startAt, timer, prev = 0; 
+var startAt, timer, min, prev = 0; 
 var ding = new Audio(dingUrl);
 
 //Text display
@@ -199,7 +199,7 @@ function onMouseUp(event) {
 		rotating = false;
 		controls.enabled = true;
 		document.body.style.cursor = "default";
-		console.log(pomTop.rotation.y);
+		setTimer(min);
 		if( ! timer.running) {
 			timer.start();
 		}
@@ -207,32 +207,53 @@ function onMouseUp(event) {
 }
 
 function updateRotation(actual) {
-		actual.y = 0;
+		//Z axis
 		var axis = new THREE.Vector3(0, 0, 1);
+
+		//current intersection point
+		actual.y = 0;
+
+		//angle between the previous and current intersection points
 		var angle = axis.angleTo(actual) - axis.angleTo(previous);
+
+		//get the rotation's direction 
 		if(actual.x < 0 ) {
 			angle = - angle;
 		}
-		previous = actual;
-		previous.y = 0;
+
+		//limit the rotation speed
 		while(Math.abs(angle) > rotationSpeed) {
 			angle -= angle / 10;
 		}
+
 		theta -= angle;
+
+		//prevent from rotating to the left of 0mn
 		if(theta < 0) {
 			theta += angle;
 			angle = 0;
 		}
+
+		//prevent from rotating past 55mn
 		else if(theta > Math.PI * 11/6) {
 			theta += angle;
 			angle = 0;
 		}
+
+		//set the new rotation
 		pomTop.rotation.y = -theta;
-		var deg = theta * 180 / Math.PI;
-		var min = Math.round(100 * deg / 6) / 100;
+
+		//update degrees and minutes
+		deg = theta * 180 / Math.PI;
+		min = Math.round(100 * deg / 6) / 100;
+
+		//update info display
 		rotDisplay.innerHTML = Math.round(deg) + "° : " + min + "mn";
 		timeDisplay.innerHTML = (min * 60) + "s"
-		setTimer(min);
+
+		//set previous for the next iteration	
+		previous = actual;
+		previous.y = 0;
 }
 
 function getIntersects(event) {
@@ -272,8 +293,17 @@ document.addEventListener("mousemove", onMouseMove);
 
 function anim() {
 	requestAnimationFrame(anim);
+	countdown();
 	render();
+	//controls.update();
+}
 
+var start = document.getElementById("start-btn");
+var pause = document.getElementById("pause-btn");
+start.onclick = function(){if(!timer.running){timer.start();}};
+pause.onclick = pauseTimer;
+
+function countdown() {
 	var remaining = getRemaining();
 	if(timer.running) {
 		if(remaining >= 0) {
@@ -285,13 +315,7 @@ function anim() {
 			ding.play();
 		}
 	}
-	//controls.update();
 }
-
-var start = document.getElementById("start-btn");
-var pause = document.getElementById("pause-btn");
-start.onclick = function(){if(!timer.running){timer.start();}};
-pause.onclick = pauseTimer;
 
 //TIMER 
 function resetTimer() {
