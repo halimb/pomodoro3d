@@ -150,11 +150,11 @@ function drawPom() {
 
 // >>>>>>>> Click handlers
 function onMouseDown(event) {
-	timer.stop();
 	var intersects = getIntersects(event);
 	if(intersects.length > 0) {
 		for(var i = 0; i < intersects.length; i++) {
 			if(intersects[i].object == protoPom) {
+				timer.stop();
 				document.body.style.cursor = "move"
 				controls.enabled = false;
 				rotating = true;
@@ -196,9 +196,9 @@ function onMouseMove(event) {
 }
 
 function onMouseUp(event) {
+	controls.enabled = true;
 	if(rotating) {
 		rotating = false;
-		controls.enabled = true;
 		document.body.style.cursor = "default";
 		setTimer(min);
 		if( ! timer.running) {
@@ -231,9 +231,11 @@ function updateRotation(actual) {
 
 		//prevent from rotating to the left of 0mn
 		if(theta <= 0) {
-			theta += angle;
+			//theta += angle;
+			theta = 0;
 			angle = 0;
 			ding.play();
+			rotating = false;
 		}
 
 		//prevent from rotating past 55mn
@@ -249,11 +251,11 @@ function updateRotation(actual) {
 		deg = theta * 180 / Math.PI;
 		min = Math.round(100 * deg / 6) / 100;
 
-		var diff = Math.abs(min - prevMin);
-		if(diff >= 1) {
+		var diff = Math.abs(Math.floor(min) - Math.floor(prevMin));
+		if(diff >= 1 ) {
 			prevMin = min;
 			click.play();
-		} 
+		}
 
 		//update info display
 		rotDisplay.innerHTML = Math.round(deg) + "° : " + min + "mn";
