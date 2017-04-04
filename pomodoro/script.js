@@ -233,7 +233,6 @@ function updateRotation(actual) {
 		if(theta <= 0) {
 			//theta += angle;
 			theta = 0;
-			angle = 0;
 			ding.play();
 			rotating = false;
 		}
@@ -252,14 +251,20 @@ function updateRotation(actual) {
 		min = Math.round(100 * deg / 6) / 100;
 
 		var diff = Math.abs(Math.floor(min) - Math.floor(prevMin));
-		if(diff >= 1 ) {
+		if(diff >= 1) {
+			console.log(angle);
 			prevMin = min;
+			//Control click sound rate
+			if(Math.abs(angle) <= 0.02) {
+				click = new Audio(clickUrl);
+		        click.volume = 0.2;
+			}
 			click.play();
 		}
 
 		//update info display
-		rotDisplay.innerHTML = Math.round(deg) + "° : " + min + "mn";
-		timeDisplay.innerHTML = (min * 60) + "s"
+		var secs = min * 60;
+		showTime(secs)
 
 		//set previous for the next iteration	
 		previous = actual;
@@ -317,7 +322,7 @@ function countdown() {
 	if(timer.running) {
 	var remaining = getRemaining();
 		if(remaining >= 0) {
-			timeDisplay.innerHTML = remaining + "s";
+			showTime(remaining);
 			pomTop.rotation.y = -remaining * Math.PI / 1800;
 		}
 		else{
@@ -350,6 +355,13 @@ function getRemaining() {
 		time = Math.round(remaining * 100) / 100;
 	}
 	return time;
+}
+
+function showTime(secs) {
+	var minutes = Math.floor(secs / 60); 
+	var seconds = Math.round(100 * (secs % 60)) / 100;
+	rotDisplay.innerHTML = Math.round(deg) + "°";
+	timeDisplay.innerHTML = minutes + "m" + seconds + "s";
 }
 
 
