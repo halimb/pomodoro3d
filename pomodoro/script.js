@@ -374,9 +374,13 @@ function getRemaining() {
 //Display formatted remaining time
 function showTime(secs) {
 	var minutes = Math.floor(secs / 60); 
-	var seconds = Math.round(100 * (secs % 60)) / 100;
+	var seconds = Math.ceil(secs % 60);
 	rotDisplay.innerHTML = Math.round(deg) + "°";
-	timeDisplay.innerHTML = minutes + "m" + seconds + "s";
+	var m = "m"
+	if(seconds < 10) {
+		m += "0";
+	}
+	workDisplay.innerHTML = minutes + m + seconds + "s";
 }
 
 //Update rotation and text display with timer progress 
@@ -386,8 +390,12 @@ function countdown() {
 		if(remaining >= 0) {
 			showTime(remaining);
 			pomTop.rotation.y = -remaining * Math.PI / 1800;
+			if(work) {
+				workTime = remaining;
+			}
 		}
 		else{
+			showTime(0);
 			timer.stop();
 			ding.play();
 		}
@@ -401,8 +409,11 @@ function minUp() {
 	var delta = (min * Math.PI / 30) - theta;
 	var angle = - (delta) 
 	rotateBy(angle); 
-	workTime++;
-	workDisplay.innerHTML = workTime + "mn";
+	if(workTime < 3300) {
+		var secs = 60 - workTime % 60;
+		workTime += secs;
+		showTime(workTime);
+	}
 }
 
 //round down the timer and pomodoro to the previous minute.
@@ -412,8 +423,11 @@ function minDown() {
 	var delta = theta - (min * Math.PI / 30);
 	var angle = delta;
 	rotateBy(angle);
-	workTime--;
-	workDisplay.innerHTML = workTime + "mn";
+	if(workTime > 0) {
+		var secs = workTime % 60;
+		workTime -= (secs > 0) ? secs : 60;
+		showTime(workTime);
+	}
 }
 
 
