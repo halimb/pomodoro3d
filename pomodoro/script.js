@@ -25,7 +25,10 @@ var pomTop, bottom, protoPom, rotating, previous, deg;
 var rotationSpeed = 0.025, theta = 0;
 
 //Timer
-var startAt, timer, min, prevMin = 0, prev = 0; 
+var work = true;
+var workTime = 0;
+var restTime = 0;
+var startAt, timer, min = 0, prevMin = 0, prev = 0; 
 var ding = new Audio(dingUrl);
 var click = new Audio(clickUrl);
 click.volume = 0.2;
@@ -180,7 +183,7 @@ function onMouseMove(event) {
 			else if(intersects.length > 1){
 				actual = intersects[1].point;
 			}
-			updateRotation(actual);
+			rotateTo(actual);
 		}
 	}
 
@@ -207,7 +210,7 @@ function onMouseUp(event) {
 	}
 }
 
-function updateRotation(actual) {
+function rotateTo(actual) {
 		//Z axis
 		var axis = new THREE.Vector3(0, 0, 1);
 
@@ -227,44 +230,7 @@ function updateRotation(actual) {
 			angle -= angle / 10;
 		}
 
-		theta -= angle;
-
-		//prevent from rotating to the left of 0mn
-		if(theta <= 0) {
-			//theta += angle;
-			theta = 0;
-			ding.play();
-			rotating = false;
-		}
-
-		//prevent from rotating past 55mn
-		else if(theta > Math.PI * 11/6) {
-			theta += angle;
-			angle = 0;
-		}
-
-		//set the new rotation
-		pomTop.rotation.y = -theta;
-
-		//update degrees and minutes
-		deg = theta * 180 / Math.PI;
-		min = Math.round(100 * deg / 6) / 100;
-
-		var diff = Math.abs(Math.floor(min) - Math.floor(prevMin));
-		if(diff >= 1) {
-			console.log(angle);
-			prevMin = min;
-			//Control click sound rate
-			if(Math.abs(angle) <= 0.02) {
-				click = new Audio(clickUrl);
-		        click.volume = 0.2;
-			}
-			click.play();
-		}
-
-		//update info display
-		var secs = min * 60;
-		showTime(secs)
+		rotateBy(angle);
 
 		//set previous for the next iteration	
 		previous = actual;
@@ -313,6 +279,48 @@ function anim() {
 	//controls.update();
 }
 
+function rotateBy(angle) {
+	theta -= angle;
+
+	//prevent from rotating to the left of 0mn
+	if(theta <= 0) {
+		//theta += angle;
+		theta = 0;
+		ding = new Audio(dingUrl);
+		ding.play();
+		rotating = false;
+	}
+
+	//prevent from rotating past 55mn
+	else if(theta > Math.PI * 11/6) {
+		theta += angle;
+		angle = 0;
+	}
+
+	//set the new rotation
+	pomTop.rotation.y = -theta;
+
+	//update degrees and minutes
+	deg = theta * 180 / Math.PI;
+	min = Math.round(100 * deg / 6) / 100;
+
+	var diff = Math.abs(Math.floor(min) - Math.floor(prevMin));
+	if(diff >= 1) {
+		prevMin = min;
+		//Control click sound rate
+		if(Math.abs(angle) <= 0.02) {
+			click = new Audio(clickUrl);
+	        click.volume = 0.2;
+		}
+		click.play();
+	}
+
+	//update info display
+	var secs = min * 60;
+	showTime(secs)
+
+}
+
 var start = document.getElementById("start-btn");
 var pause = document.getElementById("pause-btn");
 start.onclick = function(){if(!timer.running){timer.start();}};
@@ -333,9 +341,6 @@ function countdown() {
 }
 
 //TIMER 
-function resetTimer() {
-
-}
 
 function setTimer(minutes) {
 	startAt = minutes * 60;
@@ -357,6 +362,7 @@ function getRemaining() {
 	return time;
 }
 
+//Display formatted remaining time
 function showTime(secs) {
 	var minutes = Math.floor(secs / 60); 
 	var seconds = Math.round(100 * (secs % 60)) / 100;
@@ -364,4 +370,29 @@ function showTime(secs) {
 	timeDisplay.innerHTML = minutes + "m" + seconds + "s";
 }
 
+//round up the timer and pomodoro to the next minute.
+function minUp() {
+	timer.running = false;
+	min = Math.floor(min + 1);
+	var delta = (min * Math.PI / 30) - theta;
+	var angle = - (delta) 
+	console.log(delta)
+	rotateBy(angle); 
+}
+
+//round down the timer and pomodoro to the previous minute.
+function minDown() {
+	timer.running = false;
+	min = Math.ceil(min - 1);
+	var delta = theta - (min * Math.PI / 30);
+	var angle = delta;
+	rotateBy(angle);
+	console.log(theta);
+}
+
+var workUp = document.getElementById("work-up");
+workUp.onclick = minUp;
+
+var workDown = document.getElementById("work-down");
+workDown.onclick = minDown;
 
