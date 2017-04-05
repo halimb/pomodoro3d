@@ -35,6 +35,8 @@ click.volume = 0.2;
 //Text display
 var rotDisplay = document.getElementById("rotation");
 var timeDisplay = document.getElementById("time");
+var workDisplay = document.getElementById("work-time");
+var restDisplay = document.getElementById("rest-time");
 
 //Controls
 var start = document.getElementById("start-btn");
@@ -398,8 +400,9 @@ function minUp() {
 	min = Math.floor(min + 1);
 	var delta = (min * Math.PI / 30) - theta;
 	var angle = - (delta) 
-	console.log(delta)
 	rotateBy(angle); 
+	workTime++;
+	workDisplay.innerHTML = workTime + "mn";
 }
 
 //round down the timer and pomodoro to the previous minute.
@@ -409,7 +412,8 @@ function minDown() {
 	var delta = theta - (min * Math.PI / 30);
 	var angle = delta;
 	rotateBy(angle);
-	console.log(theta);
+	workTime--;
+	workDisplay.innerHTML = workTime + "mn";
 }
 
 
