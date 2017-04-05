@@ -19,3 +19,30 @@ canvas {
 	position: absolute;
 	top: 10vh; left: 20vw;
 }
+
+.ctrl-panel {
+	width: 75vw;
+	position: absolute;
+	bottom: 2vh;
+	left: 0; right: 0;
+	margin: auto;
+}
+
+.work-ctrl {
+	text-align: center;
+	font-size: 300%;
+	float: right;
+}
+
+
+.rest-ctrl {
+	text-align: center;
+	font-size: 300%;
+	float: left;
+}
+
+.arrow {
+	height: 3vw;
+	width: 3vw;
+	cursor: pointer;
+}
