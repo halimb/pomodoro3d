@@ -7,9 +7,8 @@
 //var jsonPlane = "https://cdn.rawgit.com/halimb/threejs-projects/e441512c/pomodoro/models/p_plane.json";
 //var dingUrl = "https://cdn.rawgit.com/halimb/threejs-projects/938241fc/pomodoro/sound/ding.mp3";
 //var clickUrl = "https://cdn.rawgit.com/halimb/threejs-projects/3f61b33e/pomodoro/sound/click.mp3";
-dingUrl = "sound/ding.mp3";
-clickUrl = "sound/click.mp3"
-
+var dingUrl = "sound/ding.mp3";
+var clickUrl = "sound/click.mp3"
 
 //Canvas
 var dimW = 1000;
@@ -36,6 +35,22 @@ click.volume = 0.2;
 //Text display
 var rotDisplay = document.getElementById("rotation");
 var timeDisplay = document.getElementById("time");
+
+//Controls
+var start = document.getElementById("start-btn");
+var pause = document.getElementById("pause-btn");
+start.onclick = function(){if(!timer.running){timer.start();}};
+pause.onclick = pauseTimer;
+
+var workUp = document.getElementById("work-up");
+var workDown = document.getElementById("work-down");
+workUp.onclick = minUp;
+workDown.onclick = minDown;
+
+//Mouse events
+c.addEventListener("mousedown", onMouseDown);
+document.addEventListener("mouseup", onMouseUp);
+document.addEventListener("mousemove", onMouseMove);
 
 init();
 anim();
@@ -100,10 +115,6 @@ function init() {
 	drawPom();
 }
 
-function render() {
-	renderer.render(scene, camera);
-}
-
 function drawProto() {
 	loader.parse(jsonProto, function(o) {
 								protoPom = o.children[0];
@@ -138,7 +149,14 @@ function drawPom() {
 								 	else {
 								 		bottom.add(child);
 								 	}
-								 }
+
+									if(child.name == "Gauge" || child.name == "Needle") {
+										child.material.emissive.r = 1;
+										child.material.emissive.g = 1;
+										child.material.emissive.b = 1;
+										child.material.emissiveIntensity = 0.2;
+									}
+								}
 								 pomTop.children[0].material.shininess = 5;
 								 bottom.children[2].material.shininess = 5;
 								 scene.add(pomTop);	
@@ -148,6 +166,19 @@ function drawPom() {
 		drawProto();
 		clear = false;
 	}
+}
+
+
+
+function render() {
+	renderer.render(scene, camera);
+}
+
+function anim() {
+	requestAnimationFrame(anim);
+	countdown();
+	render();
+	//controls.update();
 }
 
 
@@ -210,6 +241,56 @@ function onMouseUp(event) {
 	}
 }
 
+
+//Pomodoro
+
+/* Rotate the pomodoro top around its axis 
+  by the given angle and update the timer
+  and text display */
+function rotateBy(angle) {
+	theta -= angle;
+
+	//prevent from rotating to the left of 0mn
+	if(theta <= 0) {
+		//theta += angle;
+		theta = 0;
+		ding = new Audio(dingUrl);
+		ding.play();
+		rotating = false;
+	}
+
+	//prevent from rotating past 55mn
+	else if(theta > Math.PI * 11/6) {
+		theta += angle;
+		angle = 0;
+	}
+
+	//set the new rotation
+	pomTop.rotation.y = -theta;
+
+	//update degrees and minutes
+	deg = theta * 180 / Math.PI;
+	min = Math.round(100 * deg / 6) / 100;
+
+	var diff = Math.abs(Math.floor(min) - Math.floor(prevMin));
+	if(diff >= 1) {
+		prevMin = min;
+		//Control click sound rate
+		if(Math.abs(angle) <= 0.02) {
+			click = new Audio(clickUrl);
+	        click.volume = 0.2;
+		}
+		click.play();
+	}
+
+	//update info display
+	var secs = min * 60;
+	showTime(secs)
+
+}
+
+/* Rotate the pomodoro top around its axis
+  to the current cursor location */
 function rotateTo(actual) {
 		//Z axis
 		var axis = new THREE.Vector3(0, 0, 1);
@@ -266,82 +347,8 @@ function isPom(intersects) {
 	return false;
 }
 
-c.addEventListener("mousedown", onMouseDown);
-document.addEventListener("mouseup", onMouseUp);
-document.addEventListener("mousemove", onMouseMove);
-
-
-
-function anim() {
-	requestAnimationFrame(anim);
-	countdown();
-	render();
-	//controls.update();
-}
-
-function rotateBy(angle) {
-	theta -= angle;
-
-	//prevent from rotating to the left of 0mn
-	if(theta <= 0) {
-		//theta += angle;
-		theta = 0;
-		ding = new Audio(dingUrl);
-		ding.play();
-		rotating = false;
-	}
-
-	//prevent from rotating past 55mn
-	else if(theta > Math.PI * 11/6) {
-		theta += angle;
-		angle = 0;
-	}
-
-	//set the new rotation
-	pomTop.rotation.y = -theta;
-
-	//update degrees and minutes
-	deg = theta * 180 / Math.PI;
-	min = Math.round(100 * deg / 6) / 100;
-
-	var diff = Math.abs(Math.floor(min) - Math.floor(prevMin));
-	if(diff >= 1) {
-		prevMin = min;
-		//Control click sound rate
-		if(Math.abs(angle) <= 0.02) {
-			click = new Audio(clickUrl);
-	        click.volume = 0.2;
-		}
-		click.play();
-	}
-
-	//update info display
-	var secs = min * 60;
-	showTime(secs)
-
-}
-
-var start = document.getElementById("start-btn");
-var pause = document.getElementById("pause-btn");
-start.onclick = function(){if(!timer.running){timer.start();}};
-pause.onclick = pauseTimer;
-
-function countdown() {
-	if(timer.running) {
-	var remaining = getRemaining();
-		if(remaining >= 0) {
-			showTime(remaining);
-			pomTop.rotation.y = -remaining * Math.PI / 1800;
-		}
-		else{
-			timer.stop();
-			ding.play();
-		}
-	}
-}
 
 //TIMER 
-
 function setTimer(minutes) {
 	startAt = minutes * 60;
 	prev = 0;
@@ -370,6 +377,21 @@ function showTime(secs) {
 	timeDisplay.innerHTML = minutes + "m" + seconds + "s";
 }
 
+//Update rotation and text display with timer progress 
+function countdown() {
+	if(timer.running) {
+	var remaining = getRemaining();
+		if(remaining >= 0) {
+			showTime(remaining);
+			pomTop.rotation.y = -remaining * Math.PI / 1800;
+		}
+		else{
+			timer.stop();
+			ding.play();
+		}
+	}
+}
+
 //round up the timer and pomodoro to the next minute.
 function minUp() {
 	timer.running = false;
@@ -390,9 +412,4 @@ function minDown() {
 	console.log(theta);
 }
 
-var workUp = document.getElementById("work-up");
-workUp.onclick = minUp;
-
-var workDown = document.getElementById("work-down");
-workDown.onclick = minDown;
 
