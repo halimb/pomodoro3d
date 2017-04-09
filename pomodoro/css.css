@@ -8,13 +8,6 @@ canvas {
 	margin: auto;
 }
 
-.display {
-	position: absolute;
-	top: 5vh; left: 5vw;
-	font-size: 200%;
-	font-family: Arial, Helvetica, sans-serif;
-}
-
 .btn {
 	position: absolute;
 	top: 10vh; left: 20vw;
@@ -30,14 +23,14 @@ canvas {
 
 .work-ctrl {
 	text-align: center;
-	font-size: 300%;
+	font-size: 200%;
 	float: right;
 }
 
 
 .rest-ctrl {
 	text-align: center;
-	font-size: 300%;
+	font-size: 200%;
 	float: left;
 }
 

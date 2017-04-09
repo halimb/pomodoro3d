@@ -25,6 +25,7 @@ var rotationSpeed = 0.025, theta = 0;
 
 //Timer
 var work = true;
+var remTime = 0;
 var workTime = 0;
 var restTime = 0;
 var startAt, timer, min = 0, prevMin = 0, prev = 0; 
@@ -33,8 +34,6 @@ var click = new Audio(clickUrl);
 click.volume = 0.2;
 
 //Text display
-var rotDisplay = document.getElementById("rotation");
-var timeDisplay = document.getElementById("time");
 var workDisplay = document.getElementById("work-time");
 var restDisplay = document.getElementById("rest-time");
 
@@ -236,10 +235,8 @@ function onMouseUp(event) {
 	if(rotating) {
 		rotating = false;
 		document.body.style.cursor = "default";
-		setTimer(min);
-		if( ! timer.running) {
-			timer.start();
-		}
+		setTimer(min * 60);
+		console.log("MIN ============" + min)
 	}
 }
 
@@ -267,6 +264,7 @@ function rotateBy(angle) {
 		angle = 0;
 	}
 
+
 	//set the new rotation
 	pomTop.rotation.y = -theta;
 
@@ -286,8 +284,8 @@ function rotateBy(angle) {
 	}
 
 	//update info display
-	var secs = min * 60;
-	showTime(secs)
+	//var secs = min * 60;
+	//showTime(secs)
 
 }
 
@@ -351,8 +349,8 @@ function isPom(intersects) {
 
 
 //TIMER 
-function setTimer(minutes) {
-	startAt = minutes * 60;
+function setTimer(seconds) {
+	startAt = seconds;
 	prev = 0;
 }
 
@@ -371,28 +369,34 @@ function getRemaining() {
 	return time;
 }
 
-//Display formatted remaining time
+/* Display fortmatted remaining time and update 
+   pomodoro rotation during work session */
 function showTime(secs) {
 	var minutes = Math.floor(secs / 60); 
-	var seconds = Math.ceil(secs % 60);
-	rotDisplay.innerHTML = Math.round(deg) + "°";
-	var m = "m"
+	var seconds = Math.floor(secs % 60);
+	var m = "m";
 	if(seconds < 10) {
 		m += "0";
 	}
-	workDisplay.innerHTML = minutes + m + seconds + "s";
+
+	if(work) {
+		workDisplay.innerHTML = minutes + m + seconds + "s";
+		min = Math.floor(min + 1);
+		var delta = (min * Math.PI / 30) - theta;
+		var angle = - (delta) 
+		rotateBy(angle);
+	} 
+	else {
+		restDisplay.innerHTML = minutes + m + seconds + "s";
+	}
 }
 
 //Update rotation and text display with timer progress 
 function countdown() {
 	if(timer.running) {
-	var remaining = getRemaining();
-		if(remaining >= 0) {
-			showTime(remaining);
-			pomTop.rotation.y = -remaining * Math.PI / 1800;
-			if(work) {
-				workTime = remaining;
-			}
+		remTime = getRemaining();
+		if(remTime >= 0) {
+			showTime(remTime);
 		}
 		else{
 			showTime(0);
@@ -405,14 +409,12 @@ function countdown() {
 //round up the timer and pomodoro to the next minute.
 function minUp() {
 	timer.running = false;
-	min = Math.floor(min + 1);
-	var delta = (min * Math.PI / 30) - theta;
-	var angle = - (delta) 
-	rotateBy(angle); 
-	if(workTime < 3300) {
-		var secs = 60 - workTime % 60;
-		workTime += secs;
-		showTime(workTime);
+
+	if(remTime < 3300) {
+		var secs = 60 - remTime % 60;
+		remTime += secs;
+		setTimer(remTime);
+		showTime(remTime);
 	}
 }
 
@@ -426,6 +428,7 @@ function minDown() {
 	if(workTime > 0) {
 		var secs = workTime % 60;
 		workTime -= (secs > 0) ? secs : 60;
+		setTimer(workTime);
 		showTime(workTime);
 	}
 }
