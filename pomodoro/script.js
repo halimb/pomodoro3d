@@ -21,7 +21,7 @@ var scene, renderer, camera, controls, clear, loader;
 
 //Pomodoro
 var pomTop, bottom, protoPom, rotating, previous, deg;
-var rotationSpeed = 0.025, theta = 0;
+var rotationSpeed = 0.025;
 
 //Timer
 var work = true;
@@ -40,6 +40,7 @@ var restDisplay = document.getElementById("rest-time");
 //Controls
 var start = document.getElementById("start-btn");
 var pause = document.getElementById("pause-btn");
+
 start.onclick = function(){if(!timer.running){timer.start();}};
 pause.onclick = pauseTimer;
 
@@ -247,8 +248,10 @@ function onMouseUp(event) {
   by the given angle and update the timer
   and text display */
 function rotateBy(angle) {
-	theta -= angle;
-
+	var theta = -pomTop.rotation.y - angle;
+	console.log(previous);
+	console.log("angle = " + angle)
+	console.log("theta = " + theta)
 	//prevent from rotating to the left of 0mn
 	if(theta <= 0) {
 		//theta += angle;
@@ -266,12 +269,15 @@ function rotateBy(angle) {
 
 
 	//set the new rotation
-	pomTop.rotation.y = -theta;
+	//pomTop.rotation.y = -theta;
 
 	//update degrees and minutes
 	deg = theta * 180 / Math.PI;
 	min = Math.round(100 * deg / 6) / 100;
 
+	setTimer(min * 60);
+	showTime(remTime);
+	
 	var diff = Math.abs(Math.floor(min) - Math.floor(prevMin));
 	if(diff >= 1) {
 		prevMin = min;
@@ -282,11 +288,6 @@ function rotateBy(angle) {
 		}
 		click.play();
 	}
-
-	//update info display
-	//var secs = min * 60;
-	//showTime(secs)
-
 }
 
 /* Rotate the pomodoro top around its axis
@@ -351,6 +352,7 @@ function isPom(intersects) {
 //TIMER 
 function setTimer(seconds) {
 	startAt = seconds;
+	remTime = getRemaining();
 	prev = 0;
 }
 
@@ -360,12 +362,9 @@ function pauseTimer() {
 }
 
 function getRemaining() {
-	var time = -1;
-	if(timer.running) {
-		var elapsed = timer.getElapsedTime() + prev;
-		var remaining = startAt - elapsed;
-		time = Math.round(remaining * 100) / 100;
-	}
+	var elapsed = timer.getElapsedTime() + prev;
+	var remaining = startAt - elapsed;
+	var time = Math.round(remaining * 100) / 100;
 	return time;
 }
 
@@ -381,10 +380,7 @@ function showTime(secs) {
 
 	if(work) {
 		workDisplay.innerHTML = minutes + m + seconds + "s";
-		min = Math.floor(min + 1);
-		var delta = (min * Math.PI / 30) - theta;
-		var angle = - (delta) 
-		rotateBy(angle);
+		pomTop.rotation.y = -(secs * Math.PI / 1800);
 	} 
 	else {
 		restDisplay.innerHTML = minutes + m + seconds + "s";
@@ -421,15 +417,11 @@ function minUp() {
 //round down the timer and pomodoro to the previous minute.
 function minDown() {
 	timer.running = false;
-	min = Math.ceil(min - 1);
-	var delta = theta - (min * Math.PI / 30);
-	var angle = delta;
-	rotateBy(angle);
-	if(workTime > 0) {
-		var secs = workTime % 60;
-		workTime -= (secs > 0) ? secs : 60;
-		setTimer(workTime);
-		showTime(workTime);
+	if(remTime > 0) {
+		var secs = remTime % 60;
+		remTime -= (secs > 0) ? secs : 60;
+		setTimer(remTime);
+		showTime(remTime);
 	}
 }
 
