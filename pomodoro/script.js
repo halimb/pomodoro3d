@@ -38,11 +38,17 @@ var workDisplay = document.getElementById("work-time");
 var restDisplay = document.getElementById("rest-time");
 
 //Controls
-var start = document.getElementById("start-btn");
-var pause = document.getElementById("pause-btn");
+var play = document.getElementById("play-btn");
 
-start.onclick = function(){if(!timer.running){timer.start();}};
-pause.onclick = pauseTimer;
+play.onclick = function(){
+					if(!timer.running)
+						{
+							timer.start();
+						}
+					else {
+						pauseTimer();
+					}
+				}
 
 var workUp = document.getElementById("work-up");
 var workDown = document.getElementById("work-down");
@@ -159,8 +165,8 @@ function drawPom() {
 										child.material.emissiveIntensity = 0.2;
 									}
 								}
-								 pomTop.children[0].material.shininess = 5;
-								 bottom.children[2].material.shininess = 5;
+								 pomTop.children[0].material.shininess = 10;
+								 bottom.children[2].material.shininess = 10;
 								 scene.add(pomTop);	
 								 scene.add(bottom);
 							});
@@ -216,6 +222,7 @@ function onMouseMove(event) {
 			else if(intersects.length > 1){
 				actual = intersects[1].point;
 			}
+			remTime = getRemaining();
 			rotateTo(actual);
 		}
 	}
@@ -249,9 +256,7 @@ function onMouseUp(event) {
   and text display */
 function rotateBy(angle) {
 	var theta = -pomTop.rotation.y - angle;
-	console.log(previous);
-	console.log("angle = " + angle)
-	console.log("theta = " + theta)
+
 	//prevent from rotating to the left of 0mn
 	if(theta <= 0) {
 		//theta += angle;
@@ -267,17 +272,13 @@ function rotateBy(angle) {
 		angle = 0;
 	}
 
-
-	//set the new rotation
-	//pomTop.rotation.y = -theta;
-
 	//update degrees and minutes
 	deg = theta * 180 / Math.PI;
 	min = Math.round(100 * deg / 6) / 100;
 
 	setTimer(min * 60);
 	showTime(remTime);
-	
+
 	var diff = Math.abs(Math.floor(min) - Math.floor(prevMin));
 	if(diff >= 1) {
 		prevMin = min;
@@ -352,7 +353,6 @@ function isPom(intersects) {
 //TIMER 
 function setTimer(seconds) {
 	startAt = seconds;
-	remTime = getRemaining();
 	prev = 0;
 }
 
@@ -365,7 +365,7 @@ function getRemaining() {
 	var elapsed = timer.getElapsedTime() + prev;
 	var remaining = startAt - elapsed;
 	var time = Math.round(remaining * 100) / 100;
-	return time;
+	return (time > 0) ? time : 0;
 }
 
 /* Display fortmatted remaining time and update 
@@ -373,6 +373,7 @@ function getRemaining() {
 function showTime(secs) {
 	var minutes = Math.floor(secs / 60); 
 	var seconds = Math.floor(secs % 60);
+	console.log("secs = " + secs);
 	var m = "m";
 	if(seconds < 10) {
 		m += "0";
@@ -404,25 +405,30 @@ function countdown() {
 
 //round up the timer and pomodoro to the next minute.
 function minUp() {
-	timer.running = false;
-
+	//timer.running = false;
+	pauseTimer();
+	console.log("old remTime = " + remTime);
 	if(remTime < 3300) {
 		var secs = 60 - remTime % 60;
 		remTime += secs;
+		console.log("new remTime = " + remTime);
 		setTimer(remTime);
+		console.log("after setTimer, remTime = " + remTime);
 		showTime(remTime);
+		console.log("after showTime, remTime = " + remTime);
 	}
 }
 
 //round down the timer and pomodoro to the previous minute.
 function minDown() {
-	timer.running = false;
+//	timer.running = false;
+	pauseTimer();
+	var secs = remTime % 60;
+	remTime -= (secs > 0) ? secs : 60;
 	if(remTime > 0) {
-		var secs = remTime % 60;
-		remTime -= (secs > 0) ? secs : 60;
 		setTimer(remTime);
-		showTime(remTime);
 	}
+		showTime(remTime);
 }
 
 
