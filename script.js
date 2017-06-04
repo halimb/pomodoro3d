@@ -101,7 +101,7 @@ function init() {
 	renderer = new THREE.WebGLRenderer({	canvas: c,
 											antialias: true
 										} );
-	renderer.setClearColor(0xaaee77, 1);
+	renderer.setClearColor(0xffffff, 1);
 
 	//Creating the camera and panning out on the Z axis
 	camera = new THREE.PerspectiveCamera(45, 1.0, 0.1, 10000);
@@ -403,7 +403,7 @@ function showTime(secs) {
 //Update rotation and text display with timer progress 
 function countdown() {
 	if(timer.running) {
-	tick.volume = soundon ? 1 : 0;
+	tick.volume = soundon ? .7 : 0;
 	var remaining = getRemaining();
 		if(remaining >= 0) {
 			showTime(remaining);
