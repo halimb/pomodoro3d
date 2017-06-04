@@ -1,7 +1,7 @@
-<! DOCTYPE html>
+<!DOCTYPE html>
 <html>
   <head>
-    <!--     -->
+    <!--     --> 
     <script src="https://threejs.org/build/three.min.js"></script>
     <script src="https://cdn.rawgit.com/mrdoob/three.js/dev/examples/js/controls/OrbitControls.js"></script>
     <!--     -->
@@ -13,10 +13,26 @@
 
   <body>
     <canvas id="cnv"></canvas>
+    
 
-    <div class="btn">
-      <img id="play-btn"class="arrow" src="models/play.png">
+      <div  id="sound" class="sound">
+        <img id="mute-img" src="img/soundon.svg"/>
+        <span id="mute-txt">MUTE</span>
+      </div>
+
+    <div class="ctrl">
+
+      <div id="play" class="btn">
+        <img src="img/play.svg"/>
+      </div>
+      
+      <div id="pause" class="btn">
+        <img src="img/pause.svg"/>
+      </div>
     </div>
+
+
+
 
     <div class="ctrl-panel">
       <div class="work-ctrl">

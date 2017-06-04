@@ -9,6 +9,8 @@
 //var clickUrl = "https://cdn.rawgit.com/halimb/threejs-projects/3f61b33e/pomodoro/sound/click.mp3";
 var dingUrl = "sound/ding.mp3";
 var clickUrl = "sound/click.mp3"
+var tickUrl = "sound/tick.mp3";
+
 
 //Canvas
 var dimW = 1000;
@@ -21,37 +23,45 @@ var scene, renderer, camera, controls, clear, loader;
 
 //Pomodoro
 var pomTop, bottom, protoPom, rotating, previous, deg;
-var rotationSpeed = 0.045;
+var rotationSpeed = 0.025, theta = 0;
 
 //Timer
 var work = true;
-var remTime = 0;
 var workTime = 0;
+var restTime = 0;
 var startAt, timer, min = 0, prevMin = 0, prev = 0; 
-var ding = new Audio(dingUrl);
-var click = new Audio(clickUrl);
-click.volume = 0.2;
+
+//SOUNDS
+sounds = [ 
+			ding = new Audio(dingUrl),
+			click = new Audio(clickUrl),
+			tick = new Audio(tickUrl)    ];
+
+tick.loop = true;
+tick.volume = 0;
+tick.play();
 
 //Text display
 var workDisplay = document.getElementById("work-time");
-
-//Controls
-var play = document.getElementById("play-btn");
-
-play.onclick = function(){
-					if(!timer.running)
-						{
-							timer.start();
-						}
-					else {
-						pauseTimer();
-					}
-				}
-
 var workUp = document.getElementById("work-up");
 var workDown = document.getElementById("work-down");
 workUp.onclick = minUp;
 workDown.onclick = minDown;
+
+var soundon = true;
+var soundCtrl = document.getElementById("sound");
+soundCtrl.onclick = function() {
+		console.log("inside!")
+		soundon = !soundon;
+		var mute = document.getElementById("mute-img");
+		var txt = document.getElementById("mute-txt");
+		var src = soundon ? 
+			"img/soundon.svg" : 
+			"img/soundoff.svg";
+		mute.setAttribute("src", src);
+		txt.innerHTML = soundon ? 
+			"MUTE": "UNMUTE";
+	}
 
 //Mouse events
 c.addEventListener("mousedown", onMouseDown);
@@ -105,11 +115,16 @@ function init() {
 	
 	//CONTROLS
 	controls = new THREE.OrbitControls(camera, renderer.domElement);
-	
+	controls.minDistance = 8;
+	controls.maxDistance = 14;
+	controls.minPolarAngle = Math.PI / 7;
+	controls.maxPolarAngle = Math.PI / 2 - .1;
+	controls.enablePan = false;
+
 	//DAMPING: call controls.update() in the animate function!
-  /*controls.enableDamping = true;
+  	controls.enableDamping = true;
 	controls.dampingFactor = 0.08;
-	controls.rotateSpeed = 0.05;*/
+	controls.rotateSpeed = 0.05;
 	
 
 	// initalize the loader
@@ -163,8 +178,8 @@ function drawPom() {
 										child.material.emissiveIntensity = 0.2;
 									}
 								}
-								 pomTop.children[0].material.shininess = 10;
-								 bottom.children[2].material.shininess = 10;
+								 pomTop.children[0].material.shininess = 5;
+								 bottom.children[2].material.shininess = 5;
 								 scene.add(pomTop);	
 								 scene.add(bottom);
 							});
@@ -184,7 +199,7 @@ function anim() {
 	requestAnimationFrame(anim);
 	countdown();
 	render();
-	//controls.update();
+	controls.update();
 }
 
 
@@ -200,7 +215,7 @@ function onMouseDown(event) {
 				rotating = true;
 				previous = intersects[i].point;
 				previous.y = 0;
-				return;
+				break;
 			}
 		}
 	}
@@ -220,8 +235,6 @@ function onMouseMove(event) {
 			else if(intersects.length > 1){
 				actual = intersects[1].point;
 			}
-			remTime = getRemaining();
-			//previous = actual;
 			rotateTo(actual);
 		}
 	}
@@ -242,8 +255,10 @@ function onMouseUp(event) {
 	if(rotating) {
 		rotating = false;
 		document.body.style.cursor = "default";
-		setTimer(min * 60);
-		console.log("MIN ============" + min)
+		setTimer(min);
+		if( ! timer.running) {
+			timer.start();
+		}
 	}
 }
 
@@ -254,13 +269,14 @@ function onMouseUp(event) {
   by the given angle and update the timer
   and text display */
 function rotateBy(angle) {
-	var theta = -pomTop.rotation.y - angle;
+	theta -= angle;
 
 	//prevent from rotating to the left of 0mn
 	if(theta <= 0) {
 		//theta += angle;
 		theta = 0;
 		ding = new Audio(dingUrl);
+		ding.volume = soundon ? 1 : 0;
 		ding.play();
 		rotating = false;
 	}
@@ -271,12 +287,12 @@ function rotateBy(angle) {
 		angle = 0;
 	}
 
+	//set the new rotation
+	pomTop.rotation.y = -theta;
+
 	//update degrees and minutes
 	deg = theta * 180 / Math.PI;
 	min = Math.round(100 * deg / 6) / 100;
-
-	setTimer(min * 60);
-	showTime(remTime);
 
 	var diff = Math.abs(Math.floor(min) - Math.floor(prevMin));
 	if(diff >= 1) {
@@ -284,10 +300,15 @@ function rotateBy(angle) {
 		//Control click sound rate
 		if(Math.abs(angle) <= 0.02) {
 			click = new Audio(clickUrl);
-	        click.volume = 0.2;
+	        click.volume = soundon ? .2 : 0;
 		}
 		click.play();
 	}
+
+	//update info display
+	var secs = min * 60;
+	showTime(secs)
+
 }
 
 /* Rotate the pomodoro top around its axis
@@ -303,7 +324,7 @@ function rotateTo(actual) {
 		var angle = axis.angleTo(actual) - axis.angleTo(previous);
 
 		//get the rotation's direction 
-		if(actual.x > 0 ) {
+		if(actual.x < 0 ) {
 			angle = - angle;
 		}
 
@@ -350,8 +371,8 @@ function isPom(intersects) {
 
 
 //TIMER 
-function setTimer(seconds) {
-	startAt = seconds;
+function setTimer(minutes) {
+	startAt = minutes * 60;
 	prev = 0;
 }
 
@@ -361,32 +382,37 @@ function pauseTimer() {
 }
 
 function getRemaining() {
-	var elapsed = timer.getElapsedTime() + prev;
-	var remaining = startAt - elapsed;
-	var time = Math.round(remaining * 100) / 100;
-	return (time > 0) ? time : 0;
+	var time = -1;
+	if(timer.running) {
+		var elapsed = timer.getElapsedTime() + prev;
+		var remaining = startAt - elapsed;
+		time = Math.round(remaining * 100) / 100;
+	}
+	return time;
 }
 
-/* Display fortmatted remaining time and update 
-   pomodoro rotation during work session */
+//Display formatted remaining time
 function showTime(secs) {
 	var minutes = Math.floor(secs / 60); 
-	var seconds = Math.floor(secs % 60);
-	console.log("secs = " + secs);
-	var m = "m";
+	var seconds = Math.ceil(secs % 60);
+	var m = "m"
 	if(seconds < 10) {
 		m += "0";
 	}
 	workDisplay.innerHTML = minutes + m + seconds + "s";
-	pomTop.rotation.y = -(secs * Math.PI / 1800);
 }
 
 //Update rotation and text display with timer progress 
 function countdown() {
 	if(timer.running) {
-		remTime = getRemaining();
-		if(remTime >= 0) {
-			showTime(remTime);
+	tick.volume = soundon ? 1 : 0;
+	var remaining = getRemaining();
+		if(remaining >= 0) {
+			showTime(remaining);
+			pomTop.rotation.y = -remaining * Math.PI / 1800;
+			if(work) {
+				workTime = remaining;
+			}
 		}
 		else{
 			showTime(0);
@@ -394,35 +420,36 @@ function countdown() {
 			ding.play();
 		}
 	}
+	else {
+		tick.volume = 0;
+	}
 }
 
 //round up the timer and pomodoro to the next minute.
 function minUp() {
-	//timer.running = false;
-	pauseTimer();
-	console.log("old remTime = " + remTime);
-	if(remTime < 3300) {
-		var secs = 60 - remTime % 60;
-		remTime += secs;
-		console.log("new remTime = " + remTime);
-		setTimer(remTime);
-		console.log("after setTimer, remTime = " + remTime);
-		showTime(remTime);
-		console.log("after showTime, remTime = " + remTime);
+	timer.running = false;
+	min = Math.floor(min + 1);
+	var delta = (min * Math.PI / 30) - theta;
+	var angle = - (delta) 
+	rotateBy(angle); 
+	if(workTime < 3300) {
+		var secs = 60 - workTime % 60;
+		workTime += secs;
+		showTime(workTime);
 	}
 }
 
 //round down the timer and pomodoro to the previous minute.
 function minDown() {
-//	timer.running = false;
-	pauseTimer();
-	var secs = remTime % 60;
-	if(remTime > 0) {
-		remTime -= (secs > 0) ? secs : 60;
-		if(remTime > 0) {
-			setTimer(remTime);
-			showTime(remTime);
-		}
+	timer.running = false;
+	min = Math.ceil(min - 1);
+	var delta = theta - (min * Math.PI / 30);
+	var angle = delta;
+	rotateBy(angle);
+	if(workTime > 0) {
+		var secs = workTime % 60;
+		workTime -= (secs > 0) ? secs : 60;
+		showTime(workTime);
 	}
 }
 

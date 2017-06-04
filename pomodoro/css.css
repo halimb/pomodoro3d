@@ -6,6 +6,9 @@
 html {
 	background-color: #fcfcfc;
 	font-family: "Roboto";
+	user-select: none;
+	-webkit-user-select: none;
+	-moz-user-select: none;
 }
 canvas {
 	position: absolute;
@@ -15,8 +18,30 @@ canvas {
 }
 
 .btn {
+	float: left;
+}
+
+.ctrl {
 	position: absolute;
-	top: 10vh; left: 20vw;
+	bottom: 2vw;
+	right: 2vw;
+}
+
+.sound {
+	z-index: 10;
+	position: absolute;
+	height: 4vw;
+	width: 7vw;
+	margin: 2vw;
+	right: 0;
+	cursor: pointer;
+	text-align: center;
+	font-size: 1.5vw;
+}
+
+img {
+	z-index: -3;
+	height: 4vw;
 }
 
 .ctrl-panel {
@@ -37,7 +62,6 @@ canvas {
 
 .arrow {
 	line-height: 2vw;
-	transform: translateX(-20px) !important;
 	font-size: 4vw;
 	height: 3vw;
 	width: 3vw;
