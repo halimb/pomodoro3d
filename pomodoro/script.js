@@ -21,13 +21,12 @@ var scene, renderer, camera, controls, clear, loader;
 
 //Pomodoro
 var pomTop, bottom, protoPom, rotating, previous, deg;
-var rotationSpeed = 0.025;
+var rotationSpeed = 0.045;
 
 //Timer
 var work = true;
 var remTime = 0;
 var workTime = 0;
-var restTime = 0;
 var startAt, timer, min = 0, prevMin = 0, prev = 0; 
 var ding = new Audio(dingUrl);
 var click = new Audio(clickUrl);
@@ -35,7 +34,6 @@ click.volume = 0.2;
 
 //Text display
 var workDisplay = document.getElementById("work-time");
-var restDisplay = document.getElementById("rest-time");
 
 //Controls
 var play = document.getElementById("play-btn");
@@ -202,7 +200,7 @@ function onMouseDown(event) {
 				rotating = true;
 				previous = intersects[i].point;
 				previous.y = 0;
-				break;
+				return;
 			}
 		}
 	}
@@ -223,6 +221,7 @@ function onMouseMove(event) {
 				actual = intersects[1].point;
 			}
 			remTime = getRemaining();
+			//previous = actual;
 			rotateTo(actual);
 		}
 	}
@@ -304,7 +303,7 @@ function rotateTo(actual) {
 		var angle = axis.angleTo(actual) - axis.angleTo(previous);
 
 		//get the rotation's direction 
-		if(actual.x < 0 ) {
+		if(actual.x > 0 ) {
 			angle = - angle;
 		}
 
@@ -378,14 +377,8 @@ function showTime(secs) {
 	if(seconds < 10) {
 		m += "0";
 	}
-
-	if(work) {
-		workDisplay.innerHTML = minutes + m + seconds + "s";
-		pomTop.rotation.y = -(secs * Math.PI / 1800);
-	} 
-	else {
-		restDisplay.innerHTML = minutes + m + seconds + "s";
-	}
+	workDisplay.innerHTML = minutes + m + seconds + "s";
+	pomTop.rotation.y = -(secs * Math.PI / 1800);
 }
 
 //Update rotation and text display with timer progress 
@@ -424,11 +417,13 @@ function minDown() {
 //	timer.running = false;
 	pauseTimer();
 	var secs = remTime % 60;
-	remTime -= (secs > 0) ? secs : 60;
 	if(remTime > 0) {
-		setTimer(remTime);
+		remTime -= (secs > 0) ? secs : 60;
+		if(remTime > 0) {
+			setTimer(remTime);
+			showTime(remTime);
+		}
 	}
-		showTime(remTime);
 }
 
 

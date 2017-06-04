@@ -1,5 +1,11 @@
+@font-face {
+	font-family: "Roboto";
+	src: url("fonts/Roboto.ttf");
+}
+
 html {
 	background-color: #fcfcfc;
+	font-family: "Roboto";
 }
 canvas {
 	position: absolute;
@@ -23,18 +29,16 @@ canvas {
 
 .work-ctrl {
 	text-align: center;
-	font-size: 200%;
-	float: right;
-}
-
-
-.rest-ctrl {
-	text-align: center;
-	font-size: 200%;
-	float: left;
+	font-size: 3vw;
+	width: 50vw;
+	left: 0; right: 0;
+	margin: auto;
 }
 
 .arrow {
+	line-height: 2vw;
+	transform: translateX(-20px) !important;
+	font-size: 4vw;
 	height: 3vw;
 	width: 3vw;
 	cursor: pointer;
