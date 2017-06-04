@@ -1,16 +1,6 @@
-/* UNCOMMENT FOR ONLINOE USE 
- THEN MODIFY the drawPom function to use:
- loader.load(json, function(obj))
- instead of obj = loader.parse(json)*/
-//var jsonPom = "https://cdn.rawgit.com/halimb/threejs-projects/e441512c/pomodoro/models/pomodoro.json";
-//var jsonProto = "https://cdn.rawgit.com/halimb/threejs-projects/e441512c/pomodoro/models/protopom.json";
-//var jsonPlane = "https://cdn.rawgit.com/halimb/threejs-projects/e441512c/pomodoro/models/p_plane.json";
-//var dingUrl = "https://cdn.rawgit.com/halimb/threejs-projects/938241fc/pomodoro/sound/ding.mp3";
-//var clickUrl = "https://cdn.rawgit.com/halimb/threejs-projects/3f61b33e/pomodoro/sound/click.mp3";
 var dingUrl = "sound/ding.mp3";
 var clickUrl = "sound/click.mp3"
 var tickUrl = "sound/tick.mp3";
-
 
 //Canvas
 var dimW = 1000;
@@ -31,22 +21,30 @@ var workTime = 0;
 var restTime = 0;
 var startAt, timer, min = 0, prevMin = 0, prev = 0; 
 
-//SOUNDS
-sounds = [ 
-			ding = new Audio(dingUrl),
-			click = new Audio(clickUrl),
-			tick = new Audio(tickUrl)    ];
+//SOUNDS 
+var ding = new Audio(dingUrl);
+var click = new Audio(clickUrl);
+var tick = new Audio(tickUrl);
 
 tick.loop = true;
 tick.volume = 0;
+tick.playbackRate = 1;
 tick.play();
 
 //Text display
 var workDisplay = document.getElementById("work-time");
-var workUp = document.getElementById("work-up");
-var workDown = document.getElementById("work-down");
-workUp.onclick = minUp;
-workDown.onclick = minDown;
+var start = document.getElementById("play");
+var pause = document.getElementById("pause");
+start.onclick = function() {
+			if(!timer.running) {
+				timer.start();
+			}
+		}
+pause.onclick = function() {
+			if(timer.running) {
+				pauseTimer();
+			}
+		}
 
 var soundon = true;
 var soundCtrl = document.getElementById("sound");
@@ -103,7 +101,7 @@ function init() {
 	renderer = new THREE.WebGLRenderer({	canvas: c,
 											antialias: true
 										} );
-	renderer.setClearColor(0xfcfcfc, 1);
+	renderer.setClearColor(0xaaee77, 1);
 
 	//Creating the camera and panning out on the Z axis
 	camera = new THREE.PerspectiveCamera(45, 1.0, 0.1, 10000);
@@ -424,33 +422,3 @@ function countdown() {
 		tick.volume = 0;
 	}
 }
-
-//round up the timer and pomodoro to the next minute.
-function minUp() {
-	timer.running = false;
-	min = Math.floor(min + 1);
-	var delta = (min * Math.PI / 30) - theta;
-	var angle = - (delta) 
-	rotateBy(angle); 
-	if(workTime < 3300) {
-		var secs = 60 - workTime % 60;
-		workTime += secs;
-		showTime(workTime);
-	}
-}
-
-//round down the timer and pomodoro to the previous minute.
-function minDown() {
-	timer.running = false;
-	min = Math.ceil(min - 1);
-	var delta = theta - (min * Math.PI / 30);
-	var angle = delta;
-	rotateBy(angle);
-	if(workTime > 0) {
-		var secs = workTime % 60;
-		workTime -= (secs > 0) ? secs : 60;
-		showTime(workTime);
-	}
-}
-
-
