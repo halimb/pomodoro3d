@@ -101,7 +101,7 @@ function init() {
 	renderer = new THREE.WebGLRenderer({	canvas: c,
 											antialias: true
 										} );
-	renderer.setClearColor(0x559922, 1);
+	renderer.setClearColor(0xbbdd55, 1);
 
 	//Creating the camera and panning out on the Z axis
 	camera = new THREE.PerspectiveCamera(45, 1.0, 0.1, 10000);
