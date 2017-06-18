@@ -10,6 +10,7 @@ html {
 	-webkit-user-select: none;
 	-moz-user-select: none;
 }
+
 canvas {
 	position: absolute;
 	top: 0; right: 0;
@@ -31,18 +32,18 @@ canvas {
 .sound {
 	z-index: 10;
 	position: absolute;
-	height: 4vw;
-	width: 7vw;
+	height: 5vw;
+	width: 8vw;
 	margin: 2vw;
 	right: 0;
 	cursor: pointer;
 	text-align: center;
-	font-size: 1.5vw;
+	font-size: 2vw;
 }
 
 img {
 	z-index: -3;
-	height: 3vw;
+	height: 4vw;
 }
 
 .ctrl-panel {
@@ -55,7 +56,7 @@ img {
 
 .work-ctrl {
 	text-align: center;
-	font-size: 2.75vw;
+	font-size: 3.25vw;
 	width: 50vw;
 	left: 0; right: 0;
 	margin: auto;
@@ -63,8 +64,54 @@ img {
 
 .arrow {
 	line-height: 2vw;
-	font-size: 4vw;
+	font-size: 4.5vw;
 	height: 3vw;
 	width: 3vw;
 	cursor: pointer;
+}
+
+@media screen and (max-width: 600px) {
+	
+	canvas {
+		position: absolute;
+		top: 0; right: 0;
+		bottom: 0; left: 0;
+		margin: auto;
+	}
+
+	.ctrl {
+		position: absolute;
+		z-index: 999;
+		width: 10vh;
+		margin: auto;
+		bottom: 2vh;
+		left: 0; right: 0;
+	}
+
+	.sound {
+		width: 6vh;
+		margin: 2vh;
+		font-size: 2vh;
+	}
+
+	img {
+		height: 5vh;
+	}
+
+	.ctrl-panel {
+		bottom: 12vh;
+		width: 40vh;
+	}
+
+	.work-ctrl {
+		font-size: 4.5vh;
+		width: 30vh;
+	}
+
+	.arrow {
+		width: 3vh;
+		height: 3vh;
+		line-height: 2vh;
+		font-size: 4.5vh;
+	}
 }

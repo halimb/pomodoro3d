@@ -3,16 +3,14 @@ var clickUrl = "sound/click.mp3"
 var tickUrl = "sound/tick.mp3";
 
 //Canvas
-var dimW = 1000;
-var dimH = 600
 var c = document.getElementById("cnv");
-c.height = dimH; c.width = dimW;
+var dimW, dimH;
 
 //Scene 
 var scene, renderer, camera, controls, clear, loader;
 
 //Pomodoro
-var pomTop, bottom, protoPom, rotating, previous, deg;
+var pomTop, bottom, protoPom, rotating, previous, deg, plane;
 var rotationSpeed = 0.025, theta = 0;
 
 //Timer
@@ -30,6 +28,12 @@ tick.loop = true;
 tick.volume = 0;
 tick.playbackRate = 1;
 tick.play();
+
+var t = 0;
+window.onresize = function() {
+			window.clearTimeout(t);
+			t = window.setTimeout(init, 600);
+		}
 
 //Text display
 var workDisplay = document.getElementById("work-time");
@@ -69,7 +73,22 @@ document.addEventListener("mousemove", onMouseMove);
 init();
 anim();
 
+function setupCanvas() {
+	var w = window.innerWidth;
+	var h = window.innerHeight;
+	var r = h / w;
+	var portrait = (r > 1.2);
+	var wCoef = portrait ? 1 : .65;
+	var hCoef = portrait ? .7 * r : .5;
+	dimW = w * wCoef;
+	dimH = w * hCoef;
+	c.height = dimH; c.width = dimW;
+}
+
 function init() {
+
+	setupCanvas();
+
 	// Creating and setting the scene
 	scene = new THREE.Scene();
 
@@ -126,29 +145,31 @@ function init() {
 	
 
 	// initalize the loader
-	clear = true;
+	clear = (clear != false);
+	console.log(clear)
 	loader = new THREE.ObjectLoader();
 
 	//timer
-	timer = new THREE.Clock(false);
+	timer = timer ? timer : new THREE.Clock(false);
 	drawPom();
 }
 
 function drawProto() {
 	loader.parse(jsonProto, function(o) {
-								protoPom = o.children[0];
-								protoPom.name = "proto";
-								protoPom.material.visible = false;
-								protoPom.scale.set(0.127, 0.127, 0.425);
-								protoPom.translateZ(0);
-								scene.add(protoPom);	
-							});
+							protoPom = o.children[0];
+							protoPom.name = "proto";
+							protoPom.material.visible = false;
+							protoPom.scale.set(0.127, 0.127, 0.425);
+							protoPom.translateZ(0);
+							scene.add(protoPom);	
+						});
 }
 
 function drawPlane() {
-		loader.parse(jsonPlane, function(plane) {
-									scene.add(plane);
-								});
+	loader.parse(jsonPlane, function(obj) {
+								plane = obj;
+								scene.add(plane);
+							});
 }
 
 function drawPom() {
@@ -184,6 +205,12 @@ function drawPom() {
 		drawPlane();
 		drawProto();
 		clear = false;
+	}
+	else {
+		scene.add(protoPom);
+		scene.add(plane);
+		scene.add(pomTop);	
+		scene.add(bottom);
 	}
 }
 
@@ -223,7 +250,7 @@ function onMouseMove(event) {
   var intersects = getIntersects(event);
 
   	//change pomodoro rotation with mouse drag
-	if(rotating && !clear) {
+	if(rotating) {
 		var actual;
 		var intersects = getIntersects(event);
 		if(intersects.length > 0) {
