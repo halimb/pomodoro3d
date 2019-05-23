@@ -11,7 +11,7 @@ var scene, renderer, camera, controls, clear, loader;
 
 //Pomodoro
 var pomTop, bottom, protoPom, rotating, previous, deg, plane;
-var rotationSpeed = 0.025,
+var rotationSpeed = 0.35,
   theta = 0;
 
 //Timer
@@ -147,8 +147,8 @@ function init() {
 
   //DAMPING: call controls.update() in the animate function!
   controls.enableDamping = true;
-  controls.dampingFactor = 0.08;
-  controls.rotateSpeed = 0.05;
+  controls.dampingFactor = 0.3;
+  controls.rotateSpeed = 0.5;
 
 
   // initalize the loader
