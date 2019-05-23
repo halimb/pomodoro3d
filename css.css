@@ -1,117 +1,124 @@
 @font-face {
-	font-family: "Roboto";
-	src: url("fonts/Roboto.ttf");
+  font-family: "Roboto";
+  src: url("fonts/Roboto.ttf");
 }
 
 html {
-	background-color: #bd5;
-	font-family: "Roboto";
-	user-select: none;
-	-webkit-user-select: none;
-	-moz-user-select: none;
+  background-color: #bd5;
+  font-family: "Roboto";
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
 }
 
 canvas {
-	position: absolute;
-	top: 0; right: 0;
-	bottom: 0; left: 0;
-	margin: auto;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  margin: auto;
 }
 
 .btn {
-	float: left;
-	cursor: pointer;
+  float: left;
+  cursor: pointer;
 }
 
 .ctrl {
-	position: absolute;
-	bottom: 2vw;
-	right: 2vw;
+  position: absolute;
+  bottom: 2vw;
+  right: 2vw;
 }
 
 .sound {
-	z-index: 10;
-	position: absolute;
-	height: 5vw;
-	width: 8vw;
-	margin: 2vw;
-	right: 0;
-	cursor: pointer;
-	text-align: center;
-	font-size: 2vw;
+  z-index: 10;
+  position: absolute;
+  height: 5vw;
+  width: 8vw;
+  margin: 2vw;
+  right: 0;
+  cursor: pointer;
+  text-align: center;
+  font-size: 2vw;
 }
 
 img {
-	z-index: -3;
-	height: 4vw;
+  z-index: -3;
+  height: 4vw;
 }
 
 .ctrl-panel {
-	width: 75vw;
-	position: absolute;
-	bottom: 2vh;
-	left: 0; right: 0;
-	margin: auto;
+  width: 75vw;
+  position: absolute;
+  bottom: 2vh;
+  left: 0;
+  right: 0;
+  margin: auto;
 }
 
 .work-ctrl {
-	text-align: center;
-	font-size: 3.25vw;
-	width: 50vw;
-	left: 0; right: 0;
-	margin: auto;
+  text-align: center;
+  font-size: 3.25vw;
+  width: 50vw;
+  left: 0;
+  right: 0;
+  margin: auto;
 }
 
 .arrow {
-	line-height: 2vw;
-	font-size: 4.5vw;
-	height: 3vw;
-	width: 3vw;
-	cursor: pointer;
+  line-height: 2vw;
+  font-size: 4.5vw;
+  height: 3vw;
+  width: 3vw;
+  cursor: pointer;
 }
 
 @media screen and (max-width: 600px) {
-	
-	canvas {
-		position: absolute;
-		top: 0; right: 0;
-		bottom: 0; left: 0;
-		margin: auto;
-	}
 
-	.ctrl {
-		position: absolute;
-		z-index: 999;
-		width: 10vh;
-		margin: auto;
-		bottom: 2vh;
-		left: 0; right: 0;
-	}
+  canvas {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    margin: auto;
+  }
 
-	.sound {
-		width: 6vh;
-		margin: 2vh;
-		font-size: 2vh;
-	}
+  .ctrl {
+    position: absolute;
+    z-index: 999;
+    width: 10vh;
+    margin: auto;
+    bottom: 2vh;
+    left: 0;
+    right: 0;
+  }
 
-	img {
-		height: 5vh;
-	}
+  .sound {
+    width: 6vh;
+    margin: 2vh;
+    font-size: 2vh;
+  }
 
-	.ctrl-panel {
-		bottom: 12vh;
-		width: 40vh;
-	}
+  img {
+    height: 5vh;
+  }
 
-	.work-ctrl {
-		font-size: 4.5vh;
-		width: 30vh;
-	}
+  .ctrl-panel {
+    bottom: 12vh;
+    width: 40vh;
+  }
 
-	.arrow {
-		width: 3vh;
-		height: 3vh;
-		line-height: 2vh;
-		font-size: 4.5vh;
-	}
+  .work-ctrl {
+    font-size: 4.5vh;
+    width: 30vh;
+  }
+
+  .arrow {
+    width: 3vh;
+    height: 3vh;
+    line-height: 2vh;
+    font-size: 4.5vh;
+  }
 }

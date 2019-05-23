@@ -1,56 +1,59 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <!--     --> 
-    <meta name="author" content="Abdel Halim Bouguedra">
-    <meta name="viewport" content="width=device-width minimum-scale=1 maximum-scale=1">
-    <script src="https://threejs.org/build/three.min.js"></script>
-    <script src="https://cdn.rawgit.com/mrdoob/three.js/dev/examples/js/controls/OrbitControls.js"></script>
-    <!--     -->
-    <script src="models/pomodoro.js"></script>
-    <script src="models/protopom.js"></script>
-    <script src="models/p_plane.js"></script>
-    <link rel="icon" href="favicon.ico" type="image/x-icon">
-    <link rel="stylesheet" type="text/css" href="css.css">
-  </head>
 
-  <body>
-    <canvas id="cnv"></canvas>
-    
+<head>
+  <!--     -->
+  <meta name="author" content="Abdel Halim Bouguedra">
+  <meta name="viewport" content="width=device-width minimum-scale=1 maximum-scale=1">
+  <script src="https://threejs.org/build/three.min.js"></script>
+  <script src="https://cdn.rawgit.com/mrdoob/three.js/dev/examples/js/controls/OrbitControls.js"></script>
+  <!--     -->
+  <script src="models/pomodoro.js"></script>
+  <script src="models/protopom.js"></script>
+  <script src="models/p_plane.js"></script>
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" type="text/css" href="css.css">
+</head>
 
-      <div  id="sound" class="sound">
-        <img id="mute-img" src="img/soundon.svg"/>
-        <span id="mute-txt">MUTE</span>
-      </div>
+<body>
+  <canvas id="cnv"></canvas>
 
-    <div class="ctrl">
-      <div id="play" class="btn">
-        <img src="img/play.svg"/>
-      </div>
-      
-      <div id="pause" class="btn">
-        <img src="img/pause.svg"/>
-      </div>
+
+  <div id="sound" class="sound">
+    <img id="mute-img" src="img/soundon.svg" />
+    <span id="mute-txt">MUTE</span>
+  </div>
+
+  <div class="ctrl">
+    <div id="play" class="btn">
+      <img src="img/play.svg" />
     </div>
 
-
-
-
-    <div class="ctrl-panel">
-      <div class="work-ctrl">
-        Remaining <br>
-        <span id="work-time">0mn</span>
-      </div>
+    <div id="pause" class="btn">
+      <img src="img/pause.svg" />
     </div>
+  </div>
 
-      <!-- link to the source code repo -->
-    <a href="https://github.com/halimb/pomodoro3d" target="_blank">
-      <div title="Source code" style="position: absolute; left: 20px; bottom: 20px; height: 50px; width: 50px; padding: 10px; border-radius: 50%; background: #fff; cursor: pointer; font-size: 40px; text-align: center; vertical-align: middle; color: black; font-family: Arial; line-height: 40px;">
-         {&nbsp;}
-      </div>
-    </a>
-    <!--  -->
 
-    <script src="script.js"></script>
-  </body>
+
+
+  <div class="ctrl-panel">
+    <div class="work-ctrl">
+      Remaining <br>
+      <span id="work-time">0mn</span>
+    </div>
+  </div>
+
+  <!-- link to the source code repo -->
+  <a href="https://github.com/halimb/pomodoro3d" target="_blank">
+    <div title="Source code"
+      style="position: absolute; left: 20px; bottom: 20px; height: 50px; width: 50px; padding: 10px; border-radius: 50%; background: #fff; cursor: pointer; font-size: 40px; text-align: center; vertical-align: middle; color: black; font-family: Arial; line-height: 40px;">
+      {&nbsp;}
+    </div>
+  </a>
+  <!--  -->
+
+  <script src="script.js"></script>
+</body>
+
 </html>
