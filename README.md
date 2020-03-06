@@ -2,6 +2,6 @@
 
 3D pomodoro timer demo in three.js
 
-![screenshot](./pomodoro.gif)
-
 **Live demo** https://halimb.github.io/pomodoro3d/
+
+![gif preview](./pomodoro.gif)
